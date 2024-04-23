@@ -5,6 +5,7 @@ authors = [
   { name="Robert Carver", email="rob@systematicmoney.org" },
 ]
 description = "Systematic futures trading in Python"
+license = { file = "LICENSE" }
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
