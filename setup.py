@@ -14,61 +14,6 @@ def read(fname):
     """Utility function to read the README file."""
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-
-def package_files(directory, extension="yaml"):
-    paths = []
-    for path, directories, filenames in os.walk(directory):
-        for filename in filenames:
-            if filename.split(".")[-1] == extension:
-                paths.append(os.path.join("..", path, filename))
-
-    return paths
-
-
-def dir_this_file():
-    return os.path.dirname(os.path.realpath(__file__))
-
-
-private_dir = os.path.join(dir_this_file(), "private")
-private_yaml_files = package_files(private_dir, "yaml")
-
-provided_dir = os.path.join(dir_this_file(), "systems", "provided")
-provided_yaml_files = package_files(provided_dir, "yaml")
-
-control_dir = os.path.join(dir_this_file(), "syscontrol")
-control_yaml_files = package_files(control_dir, "yaml")
-
-data_csv_path = os.path.join(dir_this_file(), "data")
-data_csv_files = package_files(data_csv_path, "csv")
-
-init_csv_path = os.path.join(dir_this_file(), "sysinit")
-init_csv_files = package_files(init_csv_path, "csv")
-
-test_data_csv_path = os.path.join(dir_this_file(), "sysdata")
-test_data_csv_files = package_files(test_data_csv_path, "csv")
-
-default_config_path = os.path.join(dir_this_file(), "sysdata", "config")
-default_config_yaml_files = package_files(default_config_path, "yaml")
-
-brokers_csv_path = os.path.join(dir_this_file(), "sysbrokers")
-brokers_csv_files = package_files(brokers_csv_path, "csv")
-
-brokers_yaml_path = os.path.join(dir_this_file(), "sysbrokers")
-brokers_yaml_files = package_files(brokers_yaml_path, "yaml")
-
-package_data = {
-    "": private_yaml_files
-    + provided_yaml_files
-    + data_csv_files
-    + test_data_csv_files
-    + brokers_csv_files
-    + brokers_yaml_files
-    + control_yaml_files
-    + default_config_yaml_files
-}
-
-print(package_data)
-
 setup(
     name="pysystemtrade",
     version="1.80",
@@ -81,7 +26,6 @@ setup(
     keywords="systematic trading interactive brokers",
     url="https://qoppac.blogspot.com/p/pysystemtrade.html",
     packages=find_packages(),
-    package_data=package_data,
     long_description=read("README.md"),
     install_requires=[
         "pandas==2.1.3",
