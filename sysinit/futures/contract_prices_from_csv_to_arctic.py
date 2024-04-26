@@ -12,12 +12,15 @@ def init_db_with_csv_futures_contract_prices(
     datapath: str,
     csv_config=arg_not_supplied,
     frequency=MIXED_FREQ,
+    require_confirmation=True,
 ):
     csv_prices = csvFuturesContractPriceData(datapath)
-    input(
-        "WARNING THIS WILL ERASE ANY EXISTING DATABASE PRICES WITH DATA FROM %s ARE YOU SURE?! (CTRL-C TO STOP)"
-        % csv_prices.datapath
-    )
+
+    if require_confirmation:
+        input(
+            "WARNING THIS WILL ERASE ANY EXISTING DATABASE PRICES WITH DATA FROM %s ARE YOU SURE?! (CTRL-C TO STOP)"
+            % csv_prices.datapath
+        )
 
     instrument_codes = (
         csv_prices.get_list_of_instrument_codes_with_price_data_at_frequency(frequency)
@@ -96,10 +99,14 @@ def create_merged_prices(contract):
         print(f"Read back prices (MIXED) are \n{str(written_merged_prices)}")
 
 
-if __name__ == "__main__":
+def main():
     input("Will overwrite existing prices are you sure?! CTL-C to abort")
     # modify flags as required
     datapath = "*** NEED TO DEFINE A DATAPATH***"
     init_db_with_csv_futures_contract_prices(datapath)
     # init_db_with_csv_futures_contract_prices(datapath, frequency=HOURLY_FREQ)
     # init_db_with_csv_futures_contract_prices(datapath, frequency=DAILY_PRICE_FREQ)
+
+
+if __name__ == "__main__":
+    main()
