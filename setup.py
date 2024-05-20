@@ -31,7 +31,7 @@ setup(
         "pandas==2.1.3",
         "matplotlib>=3.0.0",
         "ib-insync==0.9.86",
-        "PyYAML>=5.3",
+        "PyYAML>=6.0.1",
         "numpy>=1.24.0",
         "scipy>=1.0.0",
         "pymongo==3.11.3",
