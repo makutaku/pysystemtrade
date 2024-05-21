@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Function to check environment variables and issue warnings
-check_env_var() {
-  local var_name="$1"
-
-  # Check if the variable is set
-  if [ -z "${!var_name}" ]; then
-    echo "Error: $var_name is not set. Please set this environment variable." >&2
-
-    # Check if running as superuser and the variable is missing
-    if [ "$(id -u)" -eq 0 ]; then
-      echo "Notice: Running as superuser. If $var_name is set in your usual environment, consider using 'sudo -E' to preserve it." >&2
-    fi
-
-    exit 1
-  fi
-}
+## Function to check environment variables and issue warnings
+#check_env_var() {
+#  local var_name="$1"
+#
+#  # Check if the variable is set
+#  if [ -z "${!var_name}" ]; then
+#    echo "Error: $var_name is not set. Please set this environment variable." >&2
+#
+#    # Check if running as superuser and the variable is missing
+#    if [ "$(id -u)" -eq 0 ]; then
+#      echo "Notice: Running as superuser. If $var_name is set in your usual environment, consider using 'sudo -E' to preserve it." >&2
+#    fi
+#
+#    exit 1
+#  fi
+#}
 
 # Define the function to process each .env file
 process_env_file() {
@@ -41,6 +41,8 @@ process_env_file() {
   echo "$output_file"
 }
 
+echo "Building pysystemtrade"
+
 # Check for command-line argument and use it to override ENV if provided
 if [ ! -z "$1" ]; then
   ENV="$1"
@@ -49,25 +51,31 @@ elif [ -z "$ENV" ]; then
   exit 1
 fi
 
-# Check both VAULT_ADDR and VAULT_TOKEN
-check_env_var "VAULT_ADDR"
-check_env_var "VAULT_TOKEN"
+## Check both VAULT_ADDR and VAULT_TOKEN
+#check_env_var "VAULT_ADDR"
+#check_env_var "VAULT_TOKEN"
 
 # Output directory for processed files
 DEST_DIR_NAME="build"
 DEST_DIR="./$DEST_DIR_NAME"
-
-rm -rf "$DEST_DIR"
-# Create output directory if it does not exist
+if [[ -d "$DEST_DIR" ]]; then
+  echo "Removing existing build directory: $DEST_DIR"
+  rm -rf "$DEST_DIR"
+fi
 mkdir -p "$DEST_DIR"
 
+echo "Copying source code"
 # Enable extended globbing
 shopt -s extglob
-
 # Copy all directories except the target directory
 cp -r ./!(${DEST_DIR_NAME}) "${DEST_DIR}"
-
 # Disable extended globbing
 shopt -u extglob
 
-echo "Build completed successfully"
+echo "Copying private_config.yaml"
+CONFIG_PROJECT_NAME="pysystemtrade_config"
+CONFIG_PROJECT_DIR="../$CONFIG_PROJECT_NAME"
+TARGET_PRIVATE_FILE="$CONFIG_PROJECT_DIR/build/pysystemtrade/private_config.yaml"
+cp "$TARGET_PRIVATE_FILE" "$DEST_DIR/private/private_config.yaml"
+
+echo "DONE!"
