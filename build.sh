@@ -54,10 +54,20 @@ check_env_var "VAULT_ADDR"
 check_env_var "VAULT_TOKEN"
 
 # Output directory for processed files
-OUTPUT_DIR="./build"
+DEST_DIR_NAME="build"
+DEST_DIR="./$DEST_DIR_NAME"
 
-rm -rf "$OUTPUT_DIR"
+rm -rf "$DEST_DIR"
 # Create output directory if it does not exist
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$DEST_DIR"
+
+# Enable extended globbing
+shopt -s extglob
+
+# Copy all directories except the target directory
+cp -r ./!(${DEST_DIR_NAME}) "${DEST_DIR}"
+
+# Disable extended globbing
+shopt -u extglob
 
 echo "Build completed successfully"
