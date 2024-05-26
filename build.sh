@@ -43,13 +43,13 @@ process_env_file() {
 
 echo "Building pysystemtrade"
 
-# Check for command-line argument and use it to override ENV if provided
-if [ ! -z "$1" ]; then
-  ENV="$1"
-elif [ -z "$ENV" ]; then
-  echo "Error: ENV variable is not set and no command-line argument provided."
-  exit 1
-fi
+## Check for command-line argument and use it to override ENV if provided
+#if [ ! -z "$1" ]; then
+#  ENV="$1"
+#elif [ -z "$ENV" ]; then
+#  echo "Error: ENV variable is not set and no command-line argument provided."
+#  exit 1
+#fi
 
 ## Check both VAULT_ADDR and VAULT_TOKEN
 #check_env_var "VAULT_ADDR"
@@ -64,18 +64,20 @@ if [[ -d "$DEST_DIR" ]]; then
 fi
 mkdir -p "$DEST_DIR"
 
-echo "Copying source code"
+echo "Copying application code"
 # Enable extended globbing
 shopt -s extglob
 # Copy all directories except the target directory
-cp -r ./!(${DEST_DIR_NAME}) "${DEST_DIR}"
+APP_DEST_DIR="${DEST_DIR}"/app
+mkdir -p "${APP_DEST_DIR}"
+cp -r ./!(${DEST_DIR_NAME}) "${APP_DEST_DIR}"
 # Disable extended globbing
 shopt -u extglob
 
-echo "Copying private_config.yaml"
+echo "Copying private config directory"
 CONFIG_PROJECT_NAME="pysystemtrade_config"
-CONFIG_PROJECT_DIR="../$CONFIG_PROJECT_NAME"
-TARGET_PRIVATE_FILE="$CONFIG_PROJECT_DIR/build/pysystemtrade/private_config.yaml"
-cp "$TARGET_PRIVATE_FILE" "$DEST_DIR/private/private_config.yaml"
+CONFIG_PROJECT_DIR="../${CONFIG_PROJECT_NAME}"
+PYSYSTEMTRADE_CONFIG_DIR="${CONFIG_PROJECT_DIR}"/build/pysystemtrade/.
+cp -r "${PYSYSTEMTRADE_CONFIG_DIR}" "${DEST_DIR}"/config/
 
 echo "DONE!"
