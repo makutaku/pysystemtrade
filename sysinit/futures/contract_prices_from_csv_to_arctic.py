@@ -1,5 +1,6 @@
+import sys
 from syscore.constants import arg_not_supplied
-from syscore.dateutils import MIXED_FREQ, HOURLY_FREQ, DAILY_PRICE_FREQ
+from syscore.dateutils import MIXED_FREQ, HOURLY_FREQ, DAILY_PRICE_FREQ, Frequency
 from syscore.pandas.frequency import merge_data_with_different_freq
 from sysdata.csv.csv_futures_contract_prices import csvFuturesContractPriceData
 from sysproduction.data.prices import diagPrices
@@ -14,6 +15,7 @@ def init_db_with_csv_futures_contract_prices(
     frequency=MIXED_FREQ,
     require_confirmation=True,
 ):
+    print(f"Initializing DB with data from {datapath} with frequency {frequency}")
     csv_prices = csvFuturesContractPriceData(datapath)
 
     if require_confirmation:
@@ -100,12 +102,22 @@ def create_merged_prices(contract):
 
 
 def main():
-    input("Will overwrite existing prices are you sure?! CTL-C to abort")
-    # modify flags as required
-    datapath = "*** NEED TO DEFINE A DATAPATH***"
-    init_db_with_csv_futures_contract_prices(datapath)
-    # init_db_with_csv_futures_contract_prices(datapath, frequency=HOURLY_FREQ)
-    # init_db_with_csv_futures_contract_prices(datapath, frequency=DAILY_PRICE_FREQ)
+    if len(sys.argv) < 3:
+        print("Usage: contract_prices_from_csv_to_arctic.py <datapath> <frequency> [--no-confirm]")
+        sys.exit(1)
+
+    datapath = sys.argv[1]
+    frequency_key = sys.argv[2]
+    no_confirm = len(sys.argv) > 3 and sys.argv[3] == '--no-confirm'
+
+    try:
+        frequency = Frequency[frequency_key]
+    except KeyError:
+        valid_frequencies = ', '.join([f.name for f in Frequency])
+        print(f"Invalid frequency. Allowed values are: {valid_frequencies}")
+        sys.exit(1)
+
+    init_db_with_csv_futures_contract_prices(datapath, frequency, require_confirmation=not no_confirm)
 
 
 if __name__ == "__main__":
