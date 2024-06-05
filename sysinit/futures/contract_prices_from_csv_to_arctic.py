@@ -117,7 +117,7 @@ def main():
         print(f"Invalid frequency. Allowed values are: {valid_frequencies}")
         sys.exit(1)
 
-    init_db_with_csv_futures_contract_prices(datapath, frequency, require_confirmation=not no_confirm)
+    init_db_with_csv_futures_contract_prices(datapath, frequency=frequency, require_confirmation=not no_confirm)
 
 
 if __name__ == "__main__":
