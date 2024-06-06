@@ -1,3 +1,5 @@
+import sys
+
 from syscore.interactive.input import true_if_answer_is_yes
 from syscore.constants import arg_not_supplied
 
@@ -124,9 +126,19 @@ def check_saved_roll_calendar(
     return roll_calendar
 
 
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: rollcalendars_from_arcticprices_to_csv.py <output_dir> <instrument> [--no-confirm]")
+        sys.exit(1)
+    output_dir = sys.argv[1]
+    instrument = sys.argv[2]
+    no_confirm = len(sys.argv) > 3 and sys.argv[3] == '--no-confirm'
+    if not no_confirm:
+        input("Will overwrite existing roll calendar are you sure?! CTL-C to abort")
+    instrument_code = get_valid_instrument_code_from_user(source="single") if not instrument else instrument
+    build_and_write_roll_calendar(instrument_code, output_datapath=output_dir)
+
+
 if __name__ == "__main__":
-    input("Will overwrite existing roll calendar are you sure?! CTL-C to abort")
-    instrument_code = get_valid_instrument_code_from_user(source="single")
-    ## MODIFY DATAPATH IF REQUIRED
-    # build_and_write_roll_calendar(instrument_code, output_datapath=arg_not_supplied)
-    build_and_write_roll_calendar(instrument_code, output_datapath="/home/rob/")
+
+    main()
