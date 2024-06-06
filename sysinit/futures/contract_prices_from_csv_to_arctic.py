@@ -2,7 +2,7 @@ import sys
 from syscore.constants import arg_not_supplied
 from syscore.dateutils import MIXED_FREQ, HOURLY_FREQ, DAILY_PRICE_FREQ, Frequency
 from syscore.pandas.frequency import merge_data_with_different_freq
-from sysdata.csv.csv_futures_contract_prices import csvFuturesContractPriceData
+from sysdata.csv.csv_futures_contract_prices import csvFuturesContractPriceData, ConfigCsvFuturesPrices
 from sysproduction.data.prices import diagPrices
 from sysobjects.contracts import futuresContract
 
@@ -117,7 +117,16 @@ def main():
         print(f"Invalid frequency. Allowed values are: {valid_frequencies}")
         sys.exit(1)
 
-    init_db_with_csv_futures_contract_prices(datapath, frequency=frequency, require_confirmation=not no_confirm)
+    barchart_csv_config = ConfigCsvFuturesPrices(
+        input_date_index_name="DATETIME",
+        input_date_format="ISO8601",
+        input_column_mapping=dict(OPEN="Open", HIGH="High", LOW="Low", FINAL="Close", VOLUME="Volume"),
+    )
+
+    init_db_with_csv_futures_contract_prices(datapath,
+                                             frequency=frequency,
+                                             require_confirmation=not no_confirm,
+                                             csv_config=barchart_csv_config)
 
 
 if __name__ == "__main__":
