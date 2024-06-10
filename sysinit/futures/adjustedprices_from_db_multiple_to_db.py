@@ -4,6 +4,8 @@ We create adjusted prices using multiple prices stored in database
 We then store those adjusted prices in database and/or csv
 
 """
+import argparse
+import os
 from syscore.constants import arg_not_supplied
 from sysdata.csv.csv_adjusted_prices import csvFuturesAdjustedPricesData
 
@@ -23,7 +25,7 @@ def _get_data_inputs(csv_adj_data_path):
 
 
 def process_adjusted_prices_all_instruments(
-    csv_adj_data_path=arg_not_supplied, ADD_TO_DB=True, ADD_TO_CSV=False
+    csv_adj_data_path=arg_not_supplied, add_to_db=True, add_to_csv=False
 ):
     db_multiple_prices, _notused, _alsonotused = _get_data_inputs(csv_adj_data_path)
     instrument_list = db_multiple_prices.get_list_of_instruments()
@@ -32,8 +34,8 @@ def process_adjusted_prices_all_instruments(
         process_adjusted_prices_single_instrument(
             instrument_code,
             csv_adj_data_path=csv_adj_data_path,
-            ADD_TO_DB=ADD_TO_DB,
-            ADD_TO_CSV=ADD_TO_CSV,
+            add_to_db=add_to_db,
+            add_to_csv=add_to_csv,
         )
 
 
@@ -41,8 +43,8 @@ def process_adjusted_prices_single_instrument(
     instrument_code,
     csv_adj_data_path=arg_not_supplied,
     multiple_prices=arg_not_supplied,
-    ADD_TO_DB=True,
-    ADD_TO_CSV=False,
+    add_to_db=True,
+    add_to_csv=False,
 ):
     (
         arctic_multiple_prices,
@@ -57,11 +59,11 @@ def process_adjusted_prices_single_instrument(
 
     print(adjusted_prices)
 
-    if ADD_TO_DB:
+    if add_to_db:
         parquet_adjusted_prices.add_adjusted_prices(
             instrument_code, adjusted_prices, ignore_duplication=True
         )
-    if ADD_TO_CSV:
+    if add_to_csv:
         csv_adjusted_prices.add_adjusted_prices(
             instrument_code, adjusted_prices, ignore_duplication=True
         )
@@ -69,9 +71,34 @@ def process_adjusted_prices_single_instrument(
     return adjusted_prices
 
 
-if __name__ == "__main__":
-    input("Will overwrite existing prices are you sure?! CTL-C to abort")
-    # modify flags and datapath as required
+def main():
+    output_modes = {
+        'db_only': {'add_to_csv': False, 'add_to_db': True},
+        'csv_only': {'add_to_csv': True, 'add_to_db': False},
+        'db_and_csv': {'add_to_csv': True, 'add_to_db': True},
+    }
+
+    parser = argparse.ArgumentParser(description="Generate adjusted-prices into DB, from DB multiple-prices.")
+    parser.add_argument('--no-confirm', action='store_true', help='Skip confirmation prompt.')
+    parser.add_argument('--output-mode', type=str, choices=output_modes.keys(), default='db_and_csv',
+                        help='Determines the output mode: db_only (default), csv_only, or db_and_csv.')
+    parser.add_argument('--csv-adj-data-path', type=str, default=arg_not_supplied,
+                        help='Path to output CSV adjusted prices. Change if you want to output them elsewhere.')
+    args = parser.parse_args()
+
+    if args.csv_adj_data_path is not arg_not_supplied and not os.path.exists(args.csv_adj_data_path):
+        parser.error(f"The specified CSV roll data path does not exist: {args.csv_adj_data_path}")
+
+    if not args.no_confirm:
+        input("Will overwrite existing prices are you sure?! CTL-C to abort")
+
+    mode_config = output_modes[args.output_mode]
     process_adjusted_prices_all_instruments(
-        csv_adj_data_path=arg_not_supplied, ADD_TO_DB=True, ADD_TO_CSV=True
+        csv_adj_data_path=args.csv_adj_data_path,
+        add_to_csv=mode_config['add_to_csv'],
+        add_to_db=mode_config['add_to_db']
     )
+
+
+if __name__ == "__main__":
+    main()

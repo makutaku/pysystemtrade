@@ -1,4 +1,6 @@
-import sys
+import argparse
+import os
+
 from syscore.constants import arg_not_supplied
 from syscore.dateutils import MIXED_FREQ, HOURLY_FREQ, DAILY_PRICE_FREQ, Frequency
 from syscore.pandas.frequency import merge_data_with_different_freq
@@ -102,20 +104,17 @@ def create_merged_prices(contract):
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: contract_prices_from_csv_to_arctic.py <datapath> <frequency> [--no-confirm]")
-        sys.exit(1)
 
-    datapath = sys.argv[1]
-    frequency_key = sys.argv[2]
-    no_confirm = len(sys.argv) > 3 and sys.argv[3] == '--no-confirm'
+    parser = argparse.ArgumentParser(description="Load contract prices from CSV to DB storage.")
+    parser.add_argument('datapath', type=str, help='Path to the CSV data file.')
+    parser.add_argument('--frequency', type=Frequency, default=Frequency.Mixed,
+                        help='Frequency of the contract prices (e.g., DAILY, WEEKLY, MONTHLY).')
+    parser.add_argument('--no-confirm', action='store_true', help='Skip confirmation prompt.')
 
-    try:
-        frequency = Frequency[frequency_key]
-    except KeyError:
-        valid_frequencies = ', '.join([f.name for f in Frequency])
-        print(f"Invalid frequency. Allowed values are: {valid_frequencies}")
-        sys.exit(1)
+    args = parser.parse_args()
+
+    if args.datapath is not arg_not_supplied and not os.path.exists(args.datapath):
+        parser.error(f"The specified input datapath to the CSV prices does not exist: {args.datapath}")
 
     barchart_csv_config = ConfigCsvFuturesPrices(
         input_date_index_name="DATETIME",
@@ -123,9 +122,9 @@ def main():
         input_column_mapping=dict(OPEN="Open", HIGH="High", LOW="Low", FINAL="Close", VOLUME="Volume"),
     )
 
-    init_db_with_csv_futures_contract_prices(datapath,
-                                             frequency=frequency,
-                                             require_confirmation=not no_confirm,
+    init_db_with_csv_futures_contract_prices(args.datapath,
+                                             frequency=args.frequency,
+                                             require_confirmation=not args.no_confirm,
                                              csv_config=barchart_csv_config)
 
 

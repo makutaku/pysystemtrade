@@ -9,6 +9,9 @@ We then store those multiple prices in: (depending on options)
 - arctic
 - .csv
 """
+import os
+import argparse
+
 from syscore.constants import arg_not_supplied
 from sysobjects.dict_of_futures_per_contract_prices import (
     dictFuturesContractFinalPrices,
@@ -49,8 +52,8 @@ def _get_data_inputs(csv_roll_data_path, csv_multiple_data_path):
 def process_multiple_prices_all_instruments(
     csv_multiple_data_path=arg_not_supplied,
     csv_roll_data_path=arg_not_supplied,
-    ADD_TO_DB=True,
-    ADD_TO_CSV=False,
+    add_to_db=True,
+    add_to_csv=False,
 ):
     (
         _not_used1,
@@ -68,8 +71,8 @@ def process_multiple_prices_all_instruments(
             instrument_code,
             csv_multiple_data_path=csv_multiple_data_path,
             csv_roll_data_path=csv_roll_data_path,
-            ADD_TO_DB=ADD_TO_DB,
-            ADD_TO_CSV=ADD_TO_CSV,
+            add_to_db=add_to_db,
+            add_to_csv=add_to_csv,
         )
 
 
@@ -81,8 +84,8 @@ def process_multiple_prices_single_instrument(
     csv_roll_data_path=arg_not_supplied,
     roll_parameters=arg_not_supplied,
     roll_calendar=arg_not_supplied,
-    ADD_TO_DB=True,
-    ADD_TO_CSV=False,
+    add_to_db=True,
+    add_to_csv=False,
 ):
     if target_instrument_code is arg_not_supplied:
         target_instrument_code = instrument_code
@@ -126,11 +129,11 @@ def process_multiple_prices_single_instrument(
 
     print(multiple_prices)
 
-    if ADD_TO_DB:
+    if add_to_db:
         db_multiple_prices.add_multiple_prices(
             target_instrument_code, multiple_prices, ignore_duplication=True
         )
-    if ADD_TO_CSV:
+    if add_to_csv:
         csv_multiple_prices.add_multiple_prices(
             target_instrument_code, multiple_prices, ignore_duplication=True
         )
@@ -189,16 +192,40 @@ def add_phantom_row(
     return roll_calendar
 
 
-if __name__ == "__main__":
-    input("Will overwrite existing prices are you sure?! CTL-C to abort")
-    # change if you want to write elsewhere
-    csv_multiple_data_path = arg_not_supplied
+def main():
+    output_modes = {
+        'db_only': {'add_to_csv': False, 'add_to_db': True},
+        'csv_only': {'add_to_csv': True, 'add_to_db': False},
+        'db_and_csv': {'add_to_csv': True, 'add_to_db': True},
+    }
 
-    # only change if you have written the files elsewhere
-    csv_roll_data_path = arg_not_supplied
+    parser = argparse.ArgumentParser(description="Generate multiple-prices into DB, from DB prices and CSV calendars.")
+    parser.add_argument('--no-confirm', action='store_true', help='Skip confirmation prompt.')
+    parser.add_argument('--output-mode', type=str, choices=output_modes.keys(), default='db_only',
+                        help='Determines the output mode: db_only (default), csv_only, or db_and_csv.')
+    parser.add_argument('--csv-roll-data-path', type=str, default=arg_not_supplied,
+                        help='Path to CSV roll data. Only change if you have written the CSV roll data elsewhere.')
+    parser.add_argument('--csv-multiple-data-path', type=str, default=arg_not_supplied,
+                        help='Path to CSV multiple data. Change if you want to output them elsewhere.')
+    args = parser.parse_args()
 
-    # modify flags as required
+    if args.csv_roll_data_path is not arg_not_supplied and not os.path.exists(args.csv_roll_data_path):
+        parser.error(f"The specified CSV roll data path does not exist: {args.csv_roll_data_path}")
+
+    if args.csv_multiple_data_path is not arg_not_supplied and not os.path.exists(args.csv_multiple_data_path):
+        parser.error(f"The specified CSV multiple data path does not exist: {args.csv_multiple_data_path}")
+
+    if not args.no_confirm:
+        input("Will overwrite existing multiple-prices. Are you sure?! CTL-C to abort")
+
+    mode_config = output_modes[args.output_mode]
     process_multiple_prices_all_instruments(
-        csv_multiple_data_path=csv_multiple_data_path,
-        csv_roll_data_path=csv_roll_data_path,
+        csv_multiple_data_path=args.csv_multiple_data_path,
+        csv_roll_data_path=args.csv_roll_data_path,
+        add_to_csv=mode_config['add_to_csv'],
+        add_to_db=mode_config['add_to_db']
     )
+
+
+if __name__ == "__main__":
+    main()

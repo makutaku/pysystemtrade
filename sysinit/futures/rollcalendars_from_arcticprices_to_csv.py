@@ -1,3 +1,5 @@
+import argparse
+import os
 import sys
 
 from syscore.interactive.input import true_if_answer_is_yes
@@ -37,7 +39,8 @@ def build_and_write_roll_calendar(
 ):
     if output_datapath is arg_not_supplied:
         print(
-            "*** WARNING *** This will overwrite the provided roll calendar. Might be better to use a temporary directory!"
+            "*** WARNING *** This will overwrite the provided roll calendar. Might be better to use a temporary "
+            "directory!"
         )
     else:
         print("Writing to %s" % output_datapath)
@@ -127,18 +130,35 @@ def check_saved_roll_calendar(
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: rollcalendars_from_arcticprices_to_csv.py <output_dir> <instrument> [--no-confirm]")
-        sys.exit(1)
-    output_dir = sys.argv[1]
-    instrument = sys.argv[2]
-    no_confirm = len(sys.argv) > 3 and sys.argv[3] == '--no-confirm'
-    if not no_confirm:
-        input("Will overwrite existing roll calendar are you sure?! CTL-C to abort")
-    instrument_code = get_valid_instrument_code_from_user(source="single") if not instrument else instrument
-    build_and_write_roll_calendar(instrument_code, output_datapath=output_dir)
+    parser = argparse.ArgumentParser(description="Generate roll calendars from DB prices to CSV.")
+
+    parser.add_argument('--input-prices', type=str, default=arg_not_supplied,
+                        help='Directory where the prices are located. Specify if not using DB prices.')
+    parser.add_argument('--output-datapath', type=str, default=arg_not_supplied,
+                        help='Directory where the output roll calendar CSV file will be written.')
+    parser.add_argument('--instrument-code', type=str, default=arg_not_supplied,
+                        help='Instrument for which the roll calendar will be built.')
+    parser.add_argument('--no-confirm', action='store_true', help='Skip confirmation prompt.')
+
+    args = parser.parse_args()
+
+    if args.input_prices is not arg_not_supplied and not os.path.exists(args.input_prices):
+        parser.error(f"The specified input price path does not exist: {args.input_prices}")
+
+    if args.output_datapath is not arg_not_supplied and not os.path.exists(args.output_datapath):
+        parser.error(f"The specified output path does not exist: {args.output_datapath}")
+
+    if not args.no_confirm:
+        input("Will overwrite existing roll calendar. Are you sure?! CTL-C to abort")
+
+    instrument_code = args.instrument_code if args.instrument_code is not arg_not_supplied \
+        else get_valid_instrument_code_from_user(source="single")
+
+    build_and_write_roll_calendar(instrument_code,
+                                  input_prices=args.input_prices,
+                                  output_datapath=args.output_datapath,
+                                  check_before_writing=not args.no_confirm)
 
 
 if __name__ == "__main__":
-
     main()
