@@ -1,3 +1,5 @@
+from syscore.constants import arg_not_supplied
+from sysdata.data_blob import dataBlob
 from sysdata.parquet.parquet_access import ParquetAccess
 
 from sysdata.fx.spotfx import fxPricesData
@@ -14,10 +16,13 @@ class parquetFxPricesData(fxPricesData):
     """
 
     def __init__(
-        self, parquet_access: ParquetAccess, log=get_logger("parquetFxPricesData")
+            self,
+            parquet_access: ParquetAccess = arg_not_supplied,
+            log=get_logger("parquetFxPricesData")
     ):
         super().__init__(log=log)
-        self._parquet = parquet_access
+        self._parquet = parquet_access \
+            if parquet_access is not arg_not_supplied else dataBlob().parquet_access
 
     @property
     def parquet(self):
