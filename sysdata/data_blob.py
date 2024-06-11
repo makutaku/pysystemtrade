@@ -6,6 +6,7 @@ from syscore.constants import arg_not_supplied
 from syscore.fileutils import get_resolved_pathname
 from syscore.text import camel_case_split
 from sysdata.config.production_config import get_production_config, Config
+from sysdata.csv.csv_access import CsvAccess
 from sysdata.mongodb.mongo_connection import mongoDb
 from syslogging.logger import *
 from sysdata.mongodb.mongo_IB_client_id import mongoIbBrokerClientIdData
@@ -19,6 +20,7 @@ class dataBlob(object):
         log_name: str = "",
         csv_data_paths: dict = arg_not_supplied,
         parquet_store_path: str = arg_not_supplied,
+        csv_store_path: str = arg_not_supplied,
         ib_conn: connectionIB = arg_not_supplied,
         mongo_db: mongoDb = arg_not_supplied,
         log=arg_not_supplied,
@@ -63,6 +65,7 @@ class dataBlob(object):
         self._csv_data_paths = csv_data_paths
         self._keep_original_prefix = keep_original_prefix
         self._parquet_store_path = parquet_store_path
+        self._csv_store_path = csv_store_path
 
         self._attr_list = []
 
@@ -342,6 +345,21 @@ class dataBlob(object):
 
         return path
 
+    @property
+    def csv_access(self) -> CsvAccess:
+        return CsvAccess(self.csv_root_directory)
+
+    @property
+    def csv_root_directory(self) -> str:
+        path = self._csv_store_path
+        if path is arg_not_supplied:
+            try:
+                path = get_csv_root_directory(self.config)
+            except:
+                raise Exception("Need to define csv_store in config to use csv")
+
+        return path
+
     def _get_new_mongo_db(self) -> mongoDb:
         mongo_db = mongoDb()
 
@@ -379,6 +397,11 @@ source_dict = dict(arctic="db", mongo="db", csv="db", parquet="db", ib="broker")
 
 def get_parquet_root_directory(config):
     path = config.get_element("parquet_store")
+    return get_resolved_pathname(path)
+
+
+def get_csv_root_directory(config):
+    path = config.get_element("csv_store")
     return get_resolved_pathname(path)
 
 
