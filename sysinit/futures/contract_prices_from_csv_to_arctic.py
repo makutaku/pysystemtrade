@@ -104,16 +104,16 @@ def create_merged_prices(contract):
 
 
 def main():
-
     parser = argparse.ArgumentParser(description="Load contract prices from CSV to DB storage.")
     parser.add_argument('datapath', type=str, help='Path to the CSV data file.')
     parser.add_argument('--frequency', type=Frequency, default=Frequency.Mixed,
                         help='Frequency of the contract prices (e.g., DAILY, WEEKLY, MONTHLY).')
     parser.add_argument('--no-confirm', action='store_true', help='Skip confirmation prompt.')
+    parser.add_argument('--instruments', type=str, help='Comma-separated list of instruments.')
 
     args = parser.parse_args()
 
-    if args.datapath is not arg_not_supplied and not os.path.exists(args.datapath):
+    if args.datapath and not os.path.exists(args.datapath):
         parser.error(f"The specified input datapath to the CSV prices does not exist: {args.datapath}")
 
     barchart_csv_config = ConfigCsvFuturesPrices(
@@ -122,10 +122,31 @@ def main():
         input_column_mapping=dict(OPEN="Open", HIGH="High", LOW="Low", FINAL="Close", VOLUME="Volume"),
     )
 
-    init_db_with_csv_futures_contract_prices(args.datapath,
-                                             frequency=args.frequency,
-                                             require_confirmation=not args.no_confirm,
-                                             csv_config=barchart_csv_config)
+    if args.instruments:
+        instruments = args.instruments.split(',')
+        # Process only subdirectories of each instrument
+        for instrument in instruments:
+            instrument_path = str(os.path.join(args.datapath, instrument))
+            if os.path.exists(instrument_path):
+                init_db_with_csv_futures_contract_prices(instrument_path,
+                                                         frequency=args.frequency,
+                                                         require_confirmation=not args.no_confirm,
+                                                         csv_config=barchart_csv_config)
+            else:
+                print(f"Warning: {instrument_path} does not exist.")
+    else:
+        # Process the main datapath itself
+        init_db_with_csv_futures_contract_prices(args.datapath,
+                                                 frequency=args.frequency,
+                                                 require_confirmation=not args.no_confirm,
+                                                 csv_config=barchart_csv_config)
+        # Process all subdirectories under main datapath, but non-recursively
+        for subdir in next(os.walk(args.datapath))[1]:
+            subdir_path = str(os.path.join(args.datapath, subdir))
+            init_db_with_csv_futures_contract_prices(subdir_path,
+                                                     frequency=args.frequency,
+                                                     require_confirmation=not args.no_confirm,
+                                                     csv_config=barchart_csv_config)
 
 
 if __name__ == "__main__":
