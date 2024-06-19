@@ -85,7 +85,7 @@ def _update_capital_with_broker_account_value(
             total_account_value_in_base_currency=total_account_value_in_base_currency,
         )
     else:
-        log.critical("No total capital - setting up with current broker account value")
+        log.critical("No total capital has been set - initializing it with current broker account value")
         capital_data.create_initial_capital(
             broker_account_value=total_account_value_in_base_currency,
             are_you_really_sure=True,
