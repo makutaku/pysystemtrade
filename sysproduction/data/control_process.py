@@ -172,6 +172,10 @@ class diagControlProcess(productionDataLayerGeneric):
         return result
 
     def is_it_time_to_run(self, process_name: str) -> bool:
+        override_mode = self.get_override_mode(process_name)
+        if override_mode:
+            return True
+
         start_time = self.get_start_time(process_name)
         stop_time = self.get_stop_time(process_name)
         now_time = datetime.datetime.now().time()
@@ -265,6 +269,17 @@ class diagControlProcess(productionDataLayerGeneric):
         )
 
         return all_method_dict
+
+
+    def get_override_mode(self, process_name: str) -> int:
+        """
+
+        :param process_name:
+        :return: int or None
+        """
+        return self._get_configuration_item_for_process_name(
+            process_name, "override_mode", default=None, use_config_default=False
+        )
 
     def previous_process_name(self, process_name: str) -> str:
         """

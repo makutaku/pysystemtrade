@@ -1,3 +1,5 @@
+process_configuration_override_mode:
+  run_capital_update: 1
 process_configuration_start_time:
   default: '00:01'
   run_stack_handler: '00:01'
