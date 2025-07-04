@@ -212,7 +212,7 @@ class dataBlob(object):
         class_name = get_class_name(class_object)
         csv_data_paths = self.csv_data_paths
         if csv_data_paths is arg_not_supplied:
-            return arg_not_supplied
+            return self.csv_root_directory
 
         datapath = csv_data_paths.get(class_name, "")
         if datapath == "":

@@ -1,5 +1,10 @@
 process_configuration_override_mode:
   run_capital_update: 1
+  run_daily_fx_and_contract_updates: 1
+  run_daily_prices_updates: 1
+  run_daily_update_multiple_adjusted_prices: 1
+  run_cleaners: 1
+  run_reports: 1
 process_configuration_start_time:
   default: '00:01'
   run_stack_handler: '00:01'
