@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest --collect-only)",
+      "Bash(python3 -m pytest --collect-only)",
+      "Bash(pip3:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest --tb=short -v)",
+      "Bash(black:*)",
+      "Bash(python -m pytest syscore/tests/ -v)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
