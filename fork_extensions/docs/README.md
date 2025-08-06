@@ -25,10 +25,10 @@ graph TB
             Production[🏭 Production Setup]
         end
         
-        subgraph "Reference"
-            API[📖 API Reference]
-            Examples[💡 Examples]
-            Troubleshoot[🔍 Troubleshooting]
+        subgraph "Learning & Reference"
+            Examples[💡 Examples & Tutorials]
+            Reference[📖 Reference Docs]
+            Production[🏭 Production Ops]
         end
     end
     
@@ -44,9 +44,9 @@ graph TB
     Main --> DevWorkflow
     Main --> Production
     
-    Main --> API
     Main --> Examples
-    Main --> Troubleshoot
+    Main --> Reference
+    Main --> Production
     
     style Main fill:#e1f5fe
     style HLD fill:#fff3e0
@@ -71,14 +71,25 @@ Complete architectural specifications from strategic to implementation level:
 ### **📚 User Guides**
 Practical guides for development and production:
 - **[User Guides Overview](guides/README.md)** - Complete guide navigation
-- **[Trading Strategies](guides/trading-strategies.md)** - Built-in and custom trading rules
+- **[Trading Strategies](guides/trading-strategies.md)** - Built-in and custom trading rules  
 - **[Development Workflow](guides/development-workflow.md)** - Best practices and testing
-- **[Production Setup](guides/production-setup.md)** - Going live with real trading
 
-### **📖 Reference Materials**
-- **[API Reference](api-reference.md)** - Key classes, methods, and interfaces
-- **[Examples & Tutorials](examples/README.md)** - Real-world usage examples
-- **[Troubleshooting Guide](troubleshooting.md)** - Common issues and solutions
+### **🎓 Learning Resources**
+Comprehensive learning materials with hands-on examples:
+- **[Examples & Code Samples](examples/README.md)** - Runnable code examples and real-world scenarios
+- **[Tutorials](tutorials/README.md)** - Step-by-step learning path from beginner to expert
+- **[Production Deployment](production/README.md)** - Enterprise-grade production guidance
+
+### **📖 Reference Documentation**
+Complete technical reference and specifications:
+- **[Reference Overview](reference/README.md)** - All reference materials
+- **[API Reference](reference/api-reference.md)** - Complete API documentation
+- **[Configuration Reference](reference/config/configuration-schema.md)** - All configuration options
+- **[Command Line Reference](reference/cli/production-scripts.md)** - Production scripts and tools
+
+### **📋 Project Information**
+- **[Changelog](CHANGELOG.md)** - Documentation version history and changes
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the documentation
 
 ## System Overview
 
