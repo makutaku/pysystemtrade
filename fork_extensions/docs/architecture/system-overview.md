@@ -25,31 +25,121 @@ Independent, testable components that can be combined in different ways.
 
 ## High-Level Architecture
 
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        UI[🖥️ Web Dashboard]
+        Scripts[📜 Interactive Scripts]
+        Config[⚙️ Configuration Files]
+    end
+    
+    subgraph "Production Layer"
+        ProcessCtrl[🎛️ Process Control]
+        Monitor[📊 Monitoring]
+        Reports[📋 Reporting]
+        Alerts[🚨 Alerts]
+    end
+    
+    subgraph "Execution & Order Management"
+        OrderStacks[📚 Order Stacks]
+        Algos[🤖 Trading Algorithms]
+        BrokerIF[🔌 Broker Interface]
+        RiskCtrl[🛡️ Risk Controls]
+    end
+    
+    subgraph "Systems Framework"
+        Forecasting[🔮 Forecasting]
+        PositionSizing[📏 Position Sizing]
+        Portfolio[📊 Portfolio Management]
+        Accounting[💰 Accounting]
+    end
+    
+    subgraph "Data Layer"
+        MongoDB[(🗃️ MongoDB)]
+        Parquet[(📦 Parquet)]
+        CSV[(📄 CSV Files)]
+        IB[(🏦 Interactive Brokers)]
+        Arctic[(❄️ Arctic)]
+    end
+    
+    UI --> ProcessCtrl
+    Scripts --> ProcessCtrl
+    Config --> ProcessCtrl
+    
+    ProcessCtrl --> OrderStacks
+    Monitor --> ProcessCtrl
+    Reports --> ProcessCtrl
+    Alerts --> ProcessCtrl
+    
+    OrderStacks --> Forecasting
+    Algos --> Forecasting
+    BrokerIF --> IB
+    RiskCtrl --> OrderStacks
+    
+    Forecasting --> MongoDB
+    PositionSizing --> MongoDB
+    Portfolio --> Parquet
+    Accounting --> MongoDB
+    
+    MongoDB --> Arctic
+    Parquet --> CSV
+    
+    classDef uiLayer fill:#e3f2fd
+    classDef prodLayer fill:#f3e5f5
+    classDef execLayer fill:#e8f5e8
+    classDef systemLayer fill:#fff3e0
+    classDef dataLayer fill:#fce4ec
+    
+    class UI,Scripts,Config uiLayer
+    class ProcessCtrl,Monitor,Reports,Alerts prodLayer
+    class OrderStacks,Algos,BrokerIF,RiskCtrl execLayer
+    class Forecasting,PositionSizing,Portfolio,Accounting systemLayer
+    class MongoDB,Parquet,CSV,IB,Arctic dataLayer
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    User Interface                            │
-│  Web Dashboard │ Interactive Scripts │ Configuration Files   │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                 Production Layer                             │
-│     Process Control │ Monitoring │ Reporting │ Alerts       │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│              Execution & Order Management                   │
-│   Order Stacks │ Algos │ Broker Interface │ Risk Controls   │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                 Systems Framework                           │
-│  Forecasting │ Position Sizing │ Portfolio │ Accounting     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                   Data Layer                                │
-│    MongoDB │ Parquet │ CSV │ Interactive Brokers │ Arctic   │
-└─────────────────────────────────────────────────────────────┘
+
+## Stage-Based Processing Pipeline
+
+```mermaid
+flowchart LR
+    subgraph "Data Processing Pipeline"
+        RawData[📊 Raw Data<br/>Price & Volume]
+        --> Rules[📈 Trading Rules<br/>Technical Indicators]
+        --> Forecast[🔮 Forecasting<br/>Signal Generation]
+        --> Scale[📏 Scale & Cap<br/>Risk Adjustment]
+        --> Combine[🔀 Combine<br/>Multi-rule Signals]
+        --> Position[📍 Position Sizing<br/>Volatility Targeting]
+        --> Portfolio[🗂️ Portfolio<br/>Multi-instrument]
+        --> Execute[⚡ Execution<br/>Order Management]
+        --> Account[💰 Accounting<br/>P&L Tracking]
+    end
+    
+    subgraph "Supporting Systems"
+        Risk[🛡️ Risk Management]
+        Cache[💾 Cache Layer]
+        Config[⚙️ Configuration]
+        Logging[📝 Logging]
+    end
+    
+    Risk -.-> Position
+    Risk -.-> Portfolio
+    Risk -.-> Execute
+    
+    Cache -.-> Rules
+    Cache -.-> Forecast
+    Cache -.-> Position
+    
+    Config -.-> Rules
+    Config -.-> Position
+    Config -.-> Portfolio
+    
+    Logging -.-> Execute
+    Logging -.-> Account
+    
+    classDef primary fill:#e8f5e8
+    classDef supporting fill:#fff3e0
+    
+    class RawData,Rules,Forecast,Scale,Combine,Position,Portfolio,Execute,Account primary
+    class Risk,Cache,Config,Logging supporting
 ```
 
 ## Core Components
@@ -87,6 +177,67 @@ Each stage inherits from a base `SystemStage` class and implements specific func
 
 ### Data Architecture
 
+```mermaid
+graph TB
+    subgraph "Data Abstraction Layer"
+        DataBlob[🌐 Data Blob<br/>Unified Interface]
+        
+        subgraph "Data Access Objects"
+            PriceData[💹 Price Data]
+            PositionData[📍 Position Data]
+            ContractData[📋 Contract Data]
+            OrderData[📋 Order Data]
+        end
+        
+        subgraph "Storage Backends"
+            MongoBackend[🗃️ MongoDB Backend]
+            ParquetBackend[📦 Parquet Backend]
+            CSVBackend[📄 CSV Backend]
+            ArcticBackend[❄️ Arctic Backend]
+        end
+        
+        subgraph "External Data Sources"
+            IBData[🏦 Interactive Brokers]
+            MarketData[📊 Market Data Feeds]
+            FileSystem[💾 File System]
+        end
+    end
+    
+    DataBlob --> PriceData
+    DataBlob --> PositionData
+    DataBlob --> ContractData
+    DataBlob --> OrderData
+    
+    PriceData --> MongoBackend
+    PriceData --> ArcticBackend
+    PriceData --> IBData
+    
+    PositionData --> MongoBackend
+    PositionData --> ParquetBackend
+    
+    ContractData --> MongoBackend
+    ContractData --> CSVBackend
+    
+    OrderData --> MongoBackend
+    OrderData --> IBData
+    
+    MongoBackend --> FileSystem
+    ParquetBackend --> FileSystem
+    CSVBackend --> FileSystem
+    
+    IBData --> MarketData
+    
+    classDef interface fill:#e3f2fd
+    classDef dao fill:#f3e5f5
+    classDef backend fill:#e8f5e8
+    classDef external fill:#fff3e0
+    
+    class DataBlob interface
+    class PriceData,PositionData,ContractData,OrderData dao
+    class MongoBackend,ParquetBackend,CSVBackend,ArcticBackend backend
+    class IBData,MarketData,FileSystem external
+```
+
 #### **Data Blob Pattern** (`sysdata/data_blob.py`)
 Central data access point that abstracts data sources and provides unified interface.
 
@@ -97,6 +248,13 @@ class dataBlob(object):
     logging, links to DB etc
     """
 ```
+
+The Data Blob pattern provides:
+- **Unified Interface** - Single point of access for all data operations
+- **Backend Abstraction** - Switch between storage backends without code changes
+- **Connection Management** - Efficient connection pooling and resource management
+- **Caching Layer** - Automatic caching of frequently accessed data
+- **Data Validation** - Consistent data quality checks across all sources
 
 **Features:**
 - **Source Abstraction** - `csvFuturesAdjustedPricesData` becomes `db_futures_adjusted_prices`

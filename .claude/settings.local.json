@@ -11,7 +11,9 @@
       "Bash(black:*)",
       "Bash(python -m pytest syscore/tests/ -v)",
       "Bash(mkdir:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(mv:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

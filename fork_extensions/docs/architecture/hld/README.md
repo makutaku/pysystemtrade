@@ -8,6 +8,49 @@ This High-Level Design (HLD) provides strategic architectural guidance for pysys
 
 ## Document Organization
 
+```mermaid
+graph TB
+    subgraph "High-Level Design Documentation"
+        subgraph "Strategic Architecture"
+            SA[🏗️ System Architecture<br/>Overview]
+            DA[🗃️ Data Architecture<br/>Design]
+        end
+        
+        subgraph "Business & Integration"
+            BLA[🎯 Business Logic<br/>Architecture]
+            IA[🔌 Integration<br/>Architecture]
+        end
+        
+        subgraph "Infrastructure & Operations"
+            Deploy[🚀 Deployment<br/>Architecture]
+            Security[🛡️ Security<br/>Architecture]
+        end
+        
+        subgraph "Quality & Performance"
+            Monitor[📊 Monitoring &<br/>Observability]
+            Scale[📈 Scalability &<br/>Performance]
+        end
+    end
+    
+    SA --> DA
+    DA --> BLA
+    BLA --> IA
+    IA --> Deploy
+    Deploy --> Security
+    Security --> Monitor
+    Monitor --> Scale
+    
+    classDef strategic fill:#e3f2fd
+    classDef business fill:#f3e5f5
+    classDef infra fill:#e8f5e8
+    classDef quality fill:#fff3e0
+    
+    class SA,DA strategic
+    class BLA,IA business
+    class Deploy,Security infra
+    class Monitor,Scale quality
+```
+
 The HLD is organized into focused architectural domains, each addressing specific aspects of the system design:
 
 ### **Core Architecture Documents**

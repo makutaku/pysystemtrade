@@ -57,21 +57,117 @@ This is not an academic exercise or toy system - it's a professional trading inf
 
 ## Core System Components
 
-### Data Layer (`sysdata/`)
+```mermaid
+graph TB
+    subgraph "pysystemtrade System Architecture"
+        subgraph "User Interface Layer"
+            Dashboard[🖥️ Web Dashboard]
+            Scripts[📜 Interactive Scripts]
+            Reports[📊 Reports & Analytics]
+        end
+        
+        subgraph "Production Framework (sysproduction)"
+            ProcessCtrl[🎛️ Process Control]
+            Strategies[📈 Strategy Execution]
+            Monitoring[👁️ System Monitoring]
+        end
+        
+        subgraph "Execution Engine (sysexecution)"
+            OrderMgmt[📋 Order Management]
+            Algorithms[🤖 Execution Algorithms]
+            StackProcessor[📚 Stack Processing]
+        end
+        
+        subgraph "Trading System (systems)"
+            Forecasting[🔮 Forecasting Engine]
+            PositionSizing[📏 Position Sizing]
+            Portfolio[🗂️ Portfolio Construction]
+        end
+        
+        subgraph "Quantitative Framework (sysquant)"
+            Optimization[📊 Portfolio Optimization]
+            Statistics[📈 Statistical Estimation]
+            RiskAnalytics[🛡️ Risk Analytics]
+        end
+        
+        subgraph "Business Objects (sysobjects)"
+            Instruments[🎯 Instruments & Contracts]
+            Prices[💹 Price Data]
+            Positions[📍 Position Tracking]
+        end
+        
+        subgraph "Data Layer (sysdata)"
+            DataBlob[🌐 Data Blob Interface]
+            MongoDB[(🗃️ MongoDB)]
+            Parquet[(📦 Parquet)]
+            CSV[(📄 CSV)]
+            IB[🏦 Interactive Brokers]
+        end
+    end
+    
+    Dashboard --> ProcessCtrl
+    Scripts --> ProcessCtrl
+    Reports --> ProcessCtrl
+    
+    ProcessCtrl --> Strategies
+    Strategies --> OrderMgmt
+    Monitoring --> ProcessCtrl
+    
+    OrderMgmt --> Algorithms
+    Algorithms --> StackProcessor
+    StackProcessor --> Forecasting
+    
+    Forecasting --> PositionSizing
+    PositionSizing --> Portfolio
+    Portfolio --> Optimization
+    
+    Optimization --> Statistics
+    Statistics --> RiskAnalytics
+    RiskAnalytics --> Instruments
+    
+    Instruments --> Prices
+    Prices --> Positions
+    Positions --> DataBlob
+    
+    DataBlob --> MongoDB
+    DataBlob --> Parquet
+    DataBlob --> CSV
+    DataBlob --> IB
+    
+    classDef ui fill:#e1f5fe
+    classDef production fill:#f3e5f5
+    classDef execution fill:#e8f5e8
+    classDef trading fill:#fff3e0
+    classDef quant fill:#fce4ec
+    classDef objects fill:#e0f2f1
+    classDef data fill:#fff8e1
+    
+    class Dashboard,Scripts,Reports ui
+    class ProcessCtrl,Strategies,Monitoring production
+    class OrderMgmt,Algorithms,StackProcessor execution
+    class Forecasting,PositionSizing,Portfolio trading
+    class Optimization,Statistics,RiskAnalytics quant
+    class Instruments,Prices,Positions objects
+    class DataBlob,MongoDB,Parquet,CSV,IB data
+```
+
+### **Component Descriptions**
+
+#### 🗃️ **Data Layer (`sysdata/`)**
 **Architecture:** dataBlob pattern provides unified access to multiple data sources
 - **CSV Sources** - Configuration data and historical backtesting data
 - **MongoDB** - Real-time operational data (orders, positions, process state)
 - **Parquet** - High-performance time series storage
 - **Interactive Brokers** - Live market data and trade execution
 
-### Business Objects (`sysobjects/`)
+#### 🎯 **Business Objects (`sysobjects/`)**
 **Domain Model:** Rich object model representing financial concepts
 - **Instruments & Contracts** - Futures instrument and contract management
 - **Price Data** - Multiple prices, adjusted prices with Panama stitching
 - **Positions** - Hierarchical position tracking (instrument → contract → broker)
 - **Roll Management** - Sophisticated contract roll scheduling and execution
 
-### Trading System (`systems/`)
+#### 🔮 **Trading System (`systems/`)**
 **Backtesting Engine:** Stage-based processing pipeline
 - **Raw Data Stage** - Price processing and volatility calculation
 - **Forecasting** - Trading rule execution and signal generation
@@ -79,21 +175,21 @@ This is not an academic exercise or toy system - it's a professional trading inf
 - **Portfolio Construction** - Multi-instrument optimization
 - **Accounting** - P&L calculation and performance analytics
 
-### Execution Engine (`sysexecution/`)
+#### 📋 **Execution Engine (`sysexecution/`)**
 **Order Management:** Three-tier order processing system
 - **Algorithm Framework** - Pluggable execution algorithms
 - **Stack Processing** - Hierarchical order spawning and fill propagation
 - **Market Data** - Real-time ticker objects and market analysis
 - **Trade Quantity** - Multi-leg trade support and proportional sizing
 
-### Production Framework (`sysproduction/`)
+#### 🎛️ **Production Framework (`sysproduction/`)**
 **Live Trading:** Complete production trading orchestration
 - **Process Control** - Scheduled process execution with dependency management
 - **Strategy Execution** - Multiple strategy types (buffered, optimized)
 - **Reporting System** - Automated P&L, risk, and operational reports
 - **Interactive Tools** - Order management and system administration
 
-### Quantitative Framework (`sysquant/`)
+#### 📊 **Quantitative Framework (`sysquant/`)**
 **Analytics Engine:** Advanced statistical and optimization methods
 - **Portfolio Optimization** - Multiple approaches (shrinkage, handcraft, equal weight)
 - **Statistical Estimation** - Correlation, volatility, and mean return estimation
