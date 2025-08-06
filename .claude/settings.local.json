@@ -13,7 +13,9 @@
       "Bash(mkdir:*)",
       "Bash(git add:*)",
       "Bash(mv:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rmdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

@@ -14,9 +14,9 @@ graph TB
         end
         
         subgraph "Architecture"
+            ArchOverview[📐 Architecture Overview]
             HLD[🏗️ High-Level Design]
             LLD[🔧 Low-Level Design]
-            SystemArch[📐 System Architecture]
         end
         
         subgraph "User Guides" 
@@ -36,9 +36,9 @@ graph TB
     Main --> Install
     Main --> Quick
     
+    Main --> ArchOverview
     Main --> HLD
-    Main --> LLD  
-    Main --> SystemArch
+    Main --> LLD
     
     Main --> Trading
     Main --> DevWorkflow
@@ -63,10 +63,9 @@ graph TB
 
 ### **🏗️ Architecture Documentation**
 Complete architectural specifications from strategic to implementation level:
-- **[Architecture Overview](architecture/README.md)** - Comprehensive architectural documentation
-- **[System Overview](architecture/system-overview.md)** - Core concepts and design principles
+- **[Architecture Overview](architecture/README.md)** - System architecture and design principles
 - **[High-Level Design (HLD)](architecture/hld/README.md)** - Strategic architecture and system design
-- **[Low-Level Design (LLD)](lld/README.md)** - Detailed technical specifications
+- **[Low-Level Design (LLD)](architecture/lld/README.md)** - Detailed technical specifications
 
 ### **📚 User Guides**
 Practical guides for development and production:

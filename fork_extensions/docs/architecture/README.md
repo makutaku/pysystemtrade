@@ -24,10 +24,18 @@ graph TB
     Tactical --> Operational
 ```
 
-## Documentation Structure
+## System Architecture Overview
 
-### **[System Overview](system-overview.md)**
-Core architectural concepts, system components, and fundamental design principles.
+pysystemtrade follows a **modular, stage-based architecture** that separates concerns and allows for flexible configuration and extension. The system is built around the concept of **data pipelines** and **processing stages** that transform raw market data into trading decisions.
+
+### **Core Design Principles**
+
+1. **Stage-Based Processing** - Data flows through well-defined stages: Raw Data → Forecasting → Position Sizing → Portfolio → Execution → Accounting
+2. **Data Abstraction** - Clean separation between data sources and business logic through abstract base classes and interfaces
+3. **Configuration-Driven** - System behavior controlled through YAML configuration files, not hard-coded parameters
+4. **Modular Design** - Independent, testable components that can be combined in different ways
+
+## Architecture Documentation Structure
 
 ### **[High-Level Design (HLD)](hld/README.md)**
 Strategic architectural documentation covering:
@@ -40,16 +48,16 @@ Strategic architectural documentation covering:
 - **[Monitoring & Observability](hld/07-monitoring-observability.md)** - System monitoring and insights
 - **[Scalability & Performance](hld/08-scalability-performance.md)** - Scaling strategies and optimization
 
-### **[Low-Level Design (LLD)](../lld/README.md)** 
+### **[Low-Level Design (LLD)](lld/README.md)** 
 Detailed technical specifications covering:
-- **[System Framework](../lld/01-system-framework.md)** - Core system implementation
-- **[Data Layer](../lld/02-data-layer.md)** - Data persistence and access patterns  
-- **[Trading Engine](../lld/03-trading-engine.md)** - Order management and execution
-- **[Quantitative Framework](../lld/04-quantitative-framework.md)** - Analytics and optimization
-- **[Production Control](../lld/05-production-control.md)** - Production processes
-- **[Broker Integration](../lld/06-broker-integration.md)** - External broker connectivity
-- **[Risk Management](../lld/07-risk-management.md)** - Risk calculations and limits
-- **[Performance Optimization](../lld/08-performance-optimization.md)** - System optimization
+- **[System Framework](lld/01-system-framework.md)** - Core system implementation
+- **[Data Layer](lld/02-data-layer.md)** - Data persistence and access patterns  
+- **[Trading Engine](lld/03-trading-engine.md)** - Order management and execution
+- **[Quantitative Framework](lld/04-quantitative-framework.md)** - Analytics and optimization
+- **[Production Control](lld/05-production-control.md)** - Production processes
+- **[Broker Integration](lld/06-broker-integration.md)** - External broker connectivity
+- **[Risk Management](lld/07-risk-management.md)** - Risk calculations and limits
+- **[Performance Optimization](lld/08-performance-optimization.md)** - System optimization
 
 ## Architectural Principles
 
@@ -132,8 +140,9 @@ graph TB
 ## Navigation
 
 - **[← Back to Main Documentation](../README.md)**
-- **[User Guides →](../guides/README.md)**
-- **[API Reference →](../api-reference.md)**
+- **[Project Overview →](../project-overview.md)**
+- **[High-Level Design →](hld/README.md)**
+- **[Low-Level Design →](lld/README.md)**
 
 ---
 
