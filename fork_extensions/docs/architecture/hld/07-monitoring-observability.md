@@ -13,39 +13,54 @@ The monitoring and observability architecture for pysystemtrade implements a **c
 
 ### **Three Pillars of Observability**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Observability Architecture                   │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Metrics (What happened?)        Logs (Why did it happen?)     │
-│  ┌─────────────────────────┐     ┌─────────────────────────┐    │
-│  │ Time Series Metrics     │     │ Structured Logging      │    │
-│  │ • Performance           │     │ • Application Events    │    │
-│  │ • Business KPIs         │     │ • Error Traces          │    │
-│  │ • Infrastructure        │     │ • Audit Trail           │    │
-│  │ • Trading Operations    │     │ • Debug Information     │    │
-│  └─────────────────────────┘     └─────────────────────────┘    │
-│                    │                           │                 │
-│                    └─────────┬─────────────────┘                 │
-│                              │                                   │
-│  Traces (How systems interact?)                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Distributed Tracing                                     │    │
-│  │ • Request Flow Tracking                                 │    │
-│  │ • Cross-System Dependencies                             │    │
-│  │ • Performance Bottlenecks                               │    │
-│  │ • Error Propagation                                     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Unified Observability Platform            │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │    │
-│  │  │Prometheus│ │Grafana  │ │ELK Stack│ │Jaeger   │       │    │
-│  │  │(Metrics) │ │(Dashbrd)│ │(Logs)   │ │(Traces) │       │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘       │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Observability Architecture"
+        subgraph "Metrics (What happened?)"
+            TimeSeriesMetrics["Time Series Metrics<br/>• Performance<br/>• Business KPIs<br/>• Infrastructure<br/>• Trading Operations"]
+        end
+        
+        subgraph "Logs (Why did it happen?)"
+            StructuredLogging["Structured Logging<br/>• Application Events<br/>• Error Traces<br/>• Audit Trail<br/>• Debug Information"]
+        end
+        
+        subgraph "Traces (How systems interact?)"
+            DistributedTracing["Distributed Tracing<br/>• Request Flow Tracking<br/>• Cross-System Dependencies<br/>• Performance Bottlenecks<br/>• Error Propagation"]
+        end
+        
+        subgraph "Unified Observability Platform"
+            Prometheus["Prometheus<br/>(Metrics)"]
+            Grafana["Grafana<br/>(Dashboard)"]
+            ELKStack["ELK Stack<br/>(Logs)"]
+            Jaeger["Jaeger<br/>(Traces)"]
+        end
+    end
+    
+    %% Data flow to unified platform
+    TimeSeriesMetrics --> Prometheus
+    StructuredLogging --> ELKStack
+    DistributedTracing --> Jaeger
+    
+    %% Visualization and correlation
+    Prometheus --> Grafana
+    ELKStack --> Grafana
+    Jaeger --> Grafana
+    
+    %% Cross-correlations
+    TimeSeriesMetrics -.-> StructuredLogging
+    StructuredLogging -.-> DistributedTracing
+    DistributedTracing -.-> TimeSeriesMetrics
+    
+    %% Styling
+    classDef metricsStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef logsStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef tracesStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef platformStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    
+    class TimeSeriesMetrics metricsStyle
+    class StructuredLogging logsStyle
+    class DistributedTracing tracesStyle
+    class Prometheus,Grafana,ELKStack,Jaeger platformStyle
 ```
 
 ## Metrics & Performance Monitoring

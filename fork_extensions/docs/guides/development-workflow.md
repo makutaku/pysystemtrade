@@ -156,13 +156,27 @@ python -m pytest -n auto
 
 ### Test Organization
 
-```
-tests/
-├── conftest.py              # Shared fixtures
-├── test_examples.py         # End-to-end tests
-├── syscore/tests/           # Core functionality
-├── systems/tests/           # System integration
-└── sysdata/tests/          # Data layer tests
+```mermaid
+graph TD
+    subgraph "tests/"
+        A[📁 tests/] --> B[⚙️ conftest.py<br/>Shared fixtures]
+        A --> C[🔄 test_examples.py<br/>End-to-end tests]
+        A --> D[🔧 syscore/tests/<br/>Core functionality]
+        A --> E[🎯 systems/tests/<br/>System integration]
+        A --> F[🗄️ sysdata/tests/<br/>Data layer tests]
+    end
+    
+    classDef fixtureFile fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef e2eTest fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef coreTests fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef systemTests fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef dataTests fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    
+    class B fixtureFile
+    class C e2eTest
+    class D coreTests
+    class E systemTests
+    class F dataTests
 ```
 
 ### Writing Tests

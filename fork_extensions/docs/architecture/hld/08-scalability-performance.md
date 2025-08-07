@@ -13,38 +13,61 @@ The scalability and performance architecture for pysystemtrade implements a **mu
 
 ### **Multi-Dimensional Scaling Strategy**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Scalability Architecture                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Computational Scaling      Data Scaling                       │
-│  ┌─────────────────────┐    ┌─────────────────────────────┐     │
-│  │ Parallel Processing │    │ Data Partitioning          │     │
-│  │ • Multi-threading   │    │ • Horizontal Sharding      │     │
-│  │ • Async Operations  │    │ • Time-based Partitioning  │     │
-│  │ • Process Pools     │    │ • Geographic Distribution  │     │
-│  │ • GPU Acceleration  │    │ • Read Replicas            │     │
-│  └─────────────────────┘    └─────────────────────────────┘     │
-│            │                            │                       │
-│            └─────────┬──────────────────┘                       │
-│                      │                                          │
-│  Infrastructure Scaling     Operational Scaling                │
-│  ┌─────────────────────┐    ┌─────────────────────────────┐     │
-│  │ Container Orchestration │ • Load Balancing            │     │
-│  │ • Kubernetes Clusters │  │ • Auto-scaling             │     │
-│  │ • Service Mesh       │    │ • Traffic Management       │     │
-│  │ • Edge Computing     │    │ • Circuit Breakers         │     │
-│  └─────────────────────┘    └─────────────────────────────┘     │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Performance Optimization                   │    │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐       │    │
-│  │  │Caching  │ │Indexing │ │Query    │ │Resource │       │    │
-│  │  │Strategy │ │Optimization│ │Pool Mgmt│       │    │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘       │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Scalability Architecture"
+        subgraph "Computational Scaling"
+            ParallelProc["Parallel Processing<br/>• Multi-threading<br/>• Async Operations<br/>• Process Pools<br/>• GPU Acceleration"]
+        end
+        
+        subgraph "Data Scaling"
+            DataPart["Data Partitioning<br/>• Horizontal Sharding<br/>• Time-based Partitioning<br/>• Geographic Distribution<br/>• Read Replicas"]
+        end
+        
+        subgraph "Infrastructure Scaling"
+            ContainerOrch["Container Orchestration<br/>• Kubernetes Clusters<br/>• Service Mesh<br/>• Edge Computing"]
+        end
+        
+        subgraph "Operational Scaling"
+            OpScaling["• Load Balancing<br/>• Auto-scaling<br/>• Traffic Management<br/>• Circuit Breakers"]
+        end
+        
+        subgraph "Performance Optimization"
+            CachingStrat["Caching<br/>Strategy"]
+            IndexOpt["Indexing<br/>Optimization"]
+            QueryOpt["Query<br/>Optimization"]
+            ResourceMgmt["Resource<br/>Management"]
+        end
+    end
+    
+    %% Cross-domain relationships
+    ParallelProc -.-> ContainerOrch
+    DataPart -.-> OpScaling
+    ContainerOrch --> OpScaling
+    
+    %% Performance optimization connections
+    ParallelProc --> CachingStrat
+    DataPart --> IndexOpt
+    ContainerOrch --> QueryOpt
+    OpScaling --> ResourceMgmt
+    
+    %% Performance optimization internal relationships
+    CachingStrat -.-> IndexOpt
+    IndexOpt -.-> QueryOpt
+    QueryOpt -.-> ResourceMgmt
+    
+    %% Styling
+    classDef compStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef dataStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef infraStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef opStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    classDef perfStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    
+    class ParallelProc compStyle
+    class DataPart dataStyle
+    class ContainerOrch infraStyle
+    class OpScaling opStyle
+    class CachingStrat,IndexOpt,QueryOpt,ResourceMgmt perfStyle
 ```
 
 ## Performance Optimization Framework

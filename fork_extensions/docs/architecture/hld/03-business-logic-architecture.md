@@ -13,50 +13,65 @@ The business logic architecture for pysystemtrade implements a sophisticated **D
 
 ### **Strategic Domain Decomposition**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Business Domain Map                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Core Trading Domains                                           │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Strategy    │    │ Portfolio   │    │ Risk        │  │    │
-│  │  │ Domain      │────│ Domain      │────│ Management  │  │    │
-│  │  │             │    │             │    │ Domain      │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  │         │                   │                   │       │    │
-│  └─────────│───────────────────│───────────────────│───────┘    │
-│            │                   │                   │            │
-│  ┌─────────│───────────────────│───────────────────│───────┐    │
-│  │         ▼                   ▼                   ▼       │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Order       │    │ Execution   │    │ Position    │  │    │
-│  │  │ Management  │────│ Domain      │────│ Management  │  │    │
-│  │  │ Domain      │    │             │    │ Domain      │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  │                                                         │    │
-│  │  Supporting Domains                                     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Market Data │    │ Instrument  │    │ Process     │  │    │
-│  │  │ Domain      │    │ Reference   │    │ Control     │  │    │
-│  │  │             │    │ Domain      │    │ Domain      │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  Infrastructure Domains                                        │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Data        │    │ Integration │    │ Monitoring  │  │    │
-│  │  │ Management  │    │ Domain      │    │ Domain      │  │    │
-│  │  │ Domain      │    │             │    │             │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Business Domain Map"
+        subgraph "Core Trading Domains"
+            subgraph "Upper Tier"
+                StrategyDomain["Strategy Domain"]
+                PortfolioDomain["Portfolio Domain"]
+                RiskManagement["Risk Management Domain"]
+            end
+            
+            subgraph "Lower Tier"
+                OrderManagement["Order Management Domain"]
+                ExecutionDomain["Execution Domain"]
+                PositionManagement["Position Management Domain"]
+            end
+        end
+        
+        subgraph "Supporting Domains"
+            MarketData["Market Data Domain"]
+            InstrumentRef["Instrument Reference Domain"]
+            ProcessControl["Process Control Domain"]
+        end
+        
+        subgraph "Infrastructure Domains"
+            DataManagement["Data Management Domain"]
+            Integration["Integration Domain"]
+            Monitoring["Monitoring Domain"]
+        end
+    end
+    
+    %% Core domain relationships
+    StrategyDomain --> PortfolioDomain
+    PortfolioDomain --> RiskManagement
+    
+    StrategyDomain --> OrderManagement
+    PortfolioDomain --> ExecutionDomain
+    RiskManagement --> PositionManagement
+    
+    OrderManagement --> ExecutionDomain
+    ExecutionDomain --> PositionManagement
+    
+    %% Supporting domain relationships
+    MarketData -.-> StrategyDomain
+    InstrumentRef -.-> PortfolioDomain
+    ProcessControl -.-> ExecutionDomain
+    
+    %% Infrastructure relationships
+    DataManagement -.-> MarketData
+    Integration -.-> ExecutionDomain
+    Monitoring -.-> RiskManagement
+    
+    %% Styling
+    classDef coreStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef supportStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef infraStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    
+    class StrategyDomain,PortfolioDomain,RiskManagement,OrderManagement,ExecutionDomain,PositionManagement coreStyle
+    class MarketData,InstrumentRef,ProcessControl supportStyle
+    class DataManagement,Integration,Monitoring infraStyle
 ```
 
 ### **Domain Boundaries & Responsibilities**

@@ -13,59 +13,88 @@ The integration architecture for pysystemtrade implements a **comprehensive inte
 
 ### **External System Ecosystem**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   External Integration Ecosystem                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Market Infrastructure                                          │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Exchanges   │    │ ECNs        │    │ Dark Pools  │  │    │
-│  │  │ • CME       │    │ • EBS       │    │ • Liquidity │  │    │
-│  │  │ • ICE       │    │ • Reuters   │    │   Networks  │  │    │
-│  │  │ • Eurex     │    │   Dealing   │    │             │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Prime       │    │ Interactive │    │ Execution   │  │    │
-│  │  │ Brokers     │◄───┤ Brokers     │───►│ Management  │  │    │
-│  │  │             │    │ (Primary)   │    │ Systems     │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  │                              ▲                          │    │
-│  │                              │                          │    │
-│  └──────────────────────────────│──────────────────────────┘    │
-│                                 │                               │
-│  ┌──────────────────────────────▼──────────────────────────┐    │
-│  │                 pysystemtrade                           │    │
-│  │        Systematic Trading Platform                      │    │
-│  └──────────────────────────────▲──────────────────────────┘    │
-│                                 │                               │
-│  ┌──────────────────────────────│──────────────────────────┐    │
-│  │                              │                          │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Market Data │    │ Reference   │    │ Regulatory  │  │    │
-│  │  │ Vendors     │    │ Data        │    │ Reporting   │  │    │
-│  │  │ • Bloomberg │    │ Providers   │    │ Systems     │  │    │
-│  │  │ • Refinitiv │    │ • S&P       │    │ • CFTC      │  │    │
-│  │  │ • ICE Data  │    │ • MSCI      │    │ • NFA       │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  Support Infrastructure                                        │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ Cloud       │    │ Monitoring  │    │ Backup &    │  │    │
-│  │  │ Services    │    │ Services    │    │ Archive     │  │    │
-│  │  │ • AWS/Azure │    │ • DataDog   │    │ Services    │  │    │
-│  │  │ • GCP       │    │ • NewRelic  │    │ • Iron Mtn  │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "External Integration Ecosystem"
+        subgraph "Market Infrastructure"
+            subgraph "Trading Venues"
+                Exchanges["• CME<br/>• ICE<br/>• Eurex"]
+                ECNs["• EBS<br/>• Reuters Dealing"]
+                DarkPools["• Liquidity Networks"]
+            end
+            
+            subgraph "Broker Network"
+                PrimeBrokers["Prime Brokers"]
+                InteractiveBrokers["Interactive Brokers<br/>(Primary)"]
+                ExecutionMgmt["Execution Management<br/>Systems"]
+            end
+        end
+        
+        PySystemTrade["pysystemtrade<br/>Systematic Trading Platform"]
+        
+        subgraph "Data & Compliance"
+            subgraph "Market Data"
+                Bloomberg["• Bloomberg"]
+                Refinitiv["• Refinitiv"]
+                ICEData["• ICE Data"]
+            end
+            
+            subgraph "Reference Data"
+                SNP["• S&P"]
+                MSCI["• MSCI"]
+            end
+            
+            subgraph "Regulatory"
+                CFTC["• CFTC"]
+                NFA["• NFA"]
+            end
+        end
+        
+        subgraph "Support Infrastructure"
+            CloudServices["• AWS/Azure<br/>• GCP"]
+            MonitoringServices["• DataDog<br/>• NewRelic"]
+            BackupServices["• Iron Mountain"]
+        end
+    end
+    
+    %% Core trading flow
+    Exchanges --> InteractiveBrokers
+    PrimeBrokers <--> InteractiveBrokers
+    InteractiveBrokers <--> ExecutionMgmt
+    InteractiveBrokers <--> PySystemTrade
+    
+    %% Data flow
+    Bloomberg --> PySystemTrade
+    Refinitiv --> PySystemTrade
+    ICEData --> PySystemTrade
+    SNP --> PySystemTrade
+    MSCI --> PySystemTrade
+    
+    %% Regulatory flow
+    PySystemTrade --> CFTC
+    PySystemTrade --> NFA
+    
+    %% Infrastructure support
+    CloudServices -.-> PySystemTrade
+    MonitoringServices -.-> PySystemTrade
+    BackupServices -.-> PySystemTrade
+    
+    %% Alternative flows
+    ECNs -.-> InteractiveBrokers
+    DarkPools -.-> InteractiveBrokers
+    
+    %% Styling
+    classDef marketStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef brokerStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef platformStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px,color:#000,font-weight:bold
+    classDef dataStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    classDef infraStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    
+    class Exchanges,ECNs,DarkPools marketStyle
+    class PrimeBrokers,InteractiveBrokers,ExecutionMgmt brokerStyle
+    class PySystemTrade platformStyle
+    class Bloomberg,Refinitiv,ICEData,SNP,MSCI,CFTC,NFA dataStyle
+    class CloudServices,MonitoringServices,BackupServices infraStyle
 ```
 
 ### **Integration Categories**

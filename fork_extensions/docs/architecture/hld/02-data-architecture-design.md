@@ -95,43 +95,54 @@ class DataQualityFramework:
 
 ### **Data Backend Strategy**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Data Architecture Overview                  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Application Layer                                              │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                   dataBlob                              │    │
-│  │           (Unified Data Access Layer)                   │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Data Abstraction Layer                     │    │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │    │
-│  │  │ Repository  │  │ Adapter     │  │ Factory     │     │    │
-│  │  │ Pattern     │  │ Pattern     │  │ Pattern     │     │    │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                Storage Backends                         │    │
-│  │                                                         │    │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │    │
-│  │  │ MongoDB     │  │ Parquet     │  │ CSV Files   │     │    │
-│  │  │             │  │ Files       │  │             │     │    │
-│  │  │ Operational │  │ Time Series │  │ Reference   │     │    │
-│  │  │ Data        │  │ Analytics   │  │ Data        │     │    │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │    │
-│  │                                                         │    │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │    │
-│  │  │ Redis       │  │ PostgreSQL  │  │ Arctic      │     │    │
-│  │  │             │  │ (Future)    │  │ (Legacy)    │     │    │
-│  │  │ Caching     │  │ Analytics   │  │ Time Series │     │    │
-│  │  │ Session     │  │ Reporting   │  │ Storage     │     │    │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph "Data Architecture Overview"
+        subgraph AL ["Application Layer"]
+            DB["dataBlob<br/>(Unified Data Access Layer)"]
+        end
+        
+        subgraph DAL ["Data Abstraction Layer"]
+            RP["Repository<br/>Pattern"]
+            AP["Adapter<br/>Pattern"]
+            FP["Factory<br/>Pattern"]
+        end
+        
+        subgraph SB ["Storage Backends"]
+            subgraph Row1 [" "]
+                MDB["MongoDB<br/>Operational Data"]
+                PQ["Parquet Files<br/>Time Series Analytics"]
+                CSV["CSV Files<br/>Reference Data"]
+            end
+            
+            subgraph Row2 [" "]
+                RD["Redis<br/>Caching Session"]
+                PG["PostgreSQL<br/>(Future) Analytics"]
+                AR["Arctic<br/>(Legacy) Time Series"]
+            end
+        end
+        
+        DB --> DAL
+        DAL --> SB
+        RP --- AP
+        AP --- FP
+        MDB --- PQ
+        PQ --- CSV
+        RD --- PG
+        PG --- AR
+    end
+    
+    classDef appLayer fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef abstractionLayer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef storageLayer fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef futureLayer fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef legacyLayer fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class DB appLayer
+    class RP,AP,FP abstractionLayer
+    class MDB,PQ,CSV,RD storageLayer
+    class PG futureLayer
+    class AR legacyLayer
 ```
 
 ### **Backend Selection Rationale**
@@ -169,19 +180,41 @@ mongodb:
 - **Query Performance** - Vectorized operations for fast analytics
 
 **Storage Organization:**
-```
-parquet_data/
-├── prices/
-│   ├── daily/
-│   │   └── year=2024/month=01/instrument=SOFR/data.parquet
-│   └── intraday/
-│       └── year=2024/month=01/day=15/instrument=SOFR/data.parquet
-├── analytics/
-│   ├── volatility/
-│   └── correlations/
-└── performance/
-    ├── strategy_pnl/
-    └── attribution/
+```mermaid
+graph TD
+    PD["parquet_data/"]
+    
+    subgraph "Data Organization Structure"
+        subgraph P ["prices/"]
+            PD1["daily/"]
+            PD2["intraday/"]
+            PD1 --> PD1F["year=2024/month=01/instrument=SOFR/data.parquet"]
+            PD2 --> PD2F["year=2024/month=01/day=15/instrument=SOFR/data.parquet"]
+        end
+        
+        subgraph A ["analytics/"]
+            AV["volatility/"]
+            AC["correlations/"]
+        end
+        
+        subgraph PF ["performance/"]
+            PSP["strategy_pnl/"]
+            PAT["attribution/"]
+        end
+    end
+    
+    PD --> P
+    PD --> A
+    PD --> PF
+    
+    classDef rootDir fill:#e3f2fd,stroke:#1565c0,stroke-width:3px
+    classDef categoryDir fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef subDir fill:#fff3e0,stroke:#ef6c00,stroke-width:1px
+    classDef file fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    
+    class PD rootDir
+    class PD1,PD2,AV,AC,PSP,PAT subDir
+    class PD1F,PD2F file
 ```
 
 #### **Redis - Caching & Session Store**
@@ -302,40 +335,48 @@ class ParquetBatchProcessor:
 
 ### **ETL Pipeline Design**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Data Pipeline Overview                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  External Sources                 Internal Processing           │
-│  ┌─────────────┐                ┌─────────────┐                 │
-│  │ Interactive │─────────────────│ Raw Data    │                 │
-│  │ Brokers     │                │ Ingestion   │                 │
-│  └─────────────┘                └─────────────┘                 │
-│                                        │                        │
-│  ┌─────────────┐                ┌─────────────┐                 │
-│  │ Market Data │─────────────────│ Data        │                 │
-│  │ Vendors     │                │ Validation  │                 │
-│  └─────────────┘                └─────────────┘                 │
-│                                        │                        │
-│  ┌─────────────┐                ┌─────────────┐                 │
-│  │ Reference   │─────────────────│ Data        │                 │
-│  │ Data APIs   │                │ Transform   │                 │
-│  └─────────────┘                └─────────────┘                 │
-│                                        │                        │
-│                                 ┌─────────────┐                 │
-│                                 │ Data        │                 │
-│                                 │ Storage     │                 │
-│                                 └─────────────┘                 │
-│                                        │                        │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Storage Layer                              │    │
-│  │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐        │    │
-│  │ │ MongoDB     │ │ Parquet     │ │ Redis Cache │        │    │
-│  │ │ (Live)      │ │ (Archive)   │ │ (Hot)       │        │    │
-│  │ └─────────────┘ └─────────────┘ └─────────────┘        │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Data Pipeline Overview"
+        subgraph ES ["External Sources"]
+            IB["Interactive<br/>Brokers"]
+            MDV["Market Data<br/>Vendors"]
+            RDA["Reference<br/>Data APIs"]
+        end
+        
+        subgraph IP ["Internal Processing"]
+            RDI["Raw Data<br/>Ingestion"]
+            DV["Data<br/>Validation"]
+            DT["Data<br/>Transform"]
+            DS["Data<br/>Storage"]
+        end
+        
+        subgraph SL ["Storage Layer"]
+            MDB["MongoDB<br/>(Live)"]
+            PQ["Parquet<br/>(Archive)"]
+            RC["Redis Cache<br/>(Hot)"]
+        end
+        
+        IB --> RDI
+        MDV --> RDI
+        RDA --> RDI
+        
+        RDI --> DV
+        DV --> DT
+        DT --> DS
+        
+        DS --> MDB
+        DS --> PQ
+        DS --> RC
+    end
+    
+    classDef externalSource fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef processing fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef storage fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    
+    class IB,MDV,RDA externalSource
+    class RDI,DV,DT,DS processing
+    class MDB,PQ,RC storage
 ```
 
 ### **Real-time Data Ingestion**
@@ -474,29 +515,46 @@ class DataValidationPipeline:
 ### **Caching Strategy**
 
 #### **Multi-Level Cache Architecture**
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Caching Architecture                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  L1 Cache - Application Memory                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Python Dict Cache - Hot Data (< 1MB)                   │    │
-│  │ TTL: 30 seconds | Hit Rate: 95%                        │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  L2 Cache - Redis Distributed                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Redis Cache - Warm Data (< 100MB)                      │    │
-│  │ TTL: 5 minutes | Hit Rate: 85%                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  L3 Storage - Database                                         │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ MongoDB/Parquet - Cold Data (Unlimited)                │    │
-│  │ Query Time: 10-100ms | Hit Rate: 100%                  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Caching Architecture"
+        subgraph L1 ["L1 Cache - Application Memory"]
+            L1C["Python Dict Cache<br/>Hot Data (< 1MB)<br/>TTL: 30 seconds | Hit Rate: 95%"]
+        end
+        
+        subgraph L2 ["L2 Cache - Redis Distributed"]
+            L2C["Redis Cache<br/>Warm Data (< 100MB)<br/>TTL: 5 minutes | Hit Rate: 85%"]
+        end
+        
+        subgraph L3 ["L3 Storage - Database"]
+            L3C["MongoDB/Parquet<br/>Cold Data (Unlimited)<br/>Query Time: 10-100ms | Hit Rate: 100%"]
+        end
+        
+        Request["Data Request"]
+        Response["Data Response"]
+        
+        Request --> L1C
+        L1C -->|Miss| L2C
+        L2C -->|Miss| L3C
+        
+        L1C -->|Hit| Response
+        L2C -->|Hit + Promote| L1C
+        L3C -->|Hit + Cache| L2C
+        
+        L1C --> Response
+        L2C --> Response
+        L3C --> Response
+    end
+    
+    classDef l1Cache fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px
+    classDef l2Cache fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef l3Storage fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef flow fill:#e3f2fd,stroke:#1565c0,stroke-width:1px
+    
+    class L1C l1Cache
+    class L2C l2Cache
+    class L3C l3Storage
+    class Request,Response flow
 ```
 
 #### **Cache Implementation**
@@ -589,29 +647,44 @@ class ParquetOptimizer:
 ### **Backup Strategy**
 
 #### **Multi-Tier Backup Architecture**
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Backup Architecture                        │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Tier 1 - Real-time Replication                                │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ MongoDB Replica Set - Real-time sync                   │    │
-│  │ RPO: 0 seconds | RTO: 30 seconds                       │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  Tier 2 - Automated Backups                                   │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Hourly Snapshots - Local storage                       │    │
-│  │ RPO: 1 hour | RTO: 15 minutes                          │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  Tier 3 - Offsite Archives                                    │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Daily Archives - Cloud storage                          │    │
-│  │ RPO: 24 hours | RTO: 2 hours                           │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Backup Architecture"
+        subgraph T1 ["Tier 1 - Real-time Replication"]
+            T1B["MongoDB Replica Set<br/>Real-time sync<br/>RPO: 0 seconds | RTO: 30 seconds"]
+        end
+        
+        subgraph T2 ["Tier 2 - Automated Backups"]
+            T2B["Hourly Snapshots<br/>Local storage<br/>RPO: 1 hour | RTO: 15 minutes"]
+        end
+        
+        subgraph T3 ["Tier 3 - Offsite Archives"]
+            T3B["Daily Archives<br/>Cloud storage<br/>RPO: 24 hours | RTO: 2 hours"]
+        end
+        
+        PD["Primary Data"]
+        DR["Disaster Recovery"]
+        
+        PD --> T1B
+        T1B --> T2B
+        T2B --> T3B
+        
+        T1B -.->|"Instant Recovery"| DR
+        T2B -.->|"Quick Recovery"| DR
+        T3B -.->|"Archive Recovery"| DR
+    end
+    
+    classDef tier1 fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
+    classDef tier2 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef tier3 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef primary fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef recovery fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    
+    class T1B tier1
+    class T2B tier2
+    class T3B tier3
+    class PD primary
+    class DR recovery
 ```
 
 #### **Backup Implementation**
@@ -672,21 +745,39 @@ class DataRecoveryManager:
 ### **Scaling Strategy**
 
 #### **Horizontal Scaling Plan**
-```
-Phase 1 - Single Node (Current)
-├── MongoDB (Single instance)
-├── Parquet (Local storage)
-└── Redis (Single instance)
-
-Phase 2 - Local Cluster (6-12 months)
-├── MongoDB (3-node replica set)
-├── Parquet (Distributed file system)
-└── Redis (Cluster mode)
-
-Phase 3 - Multi-Region (1-2 years)
-├── MongoDB (Sharded cluster)
-├── Parquet (Multi-region replication)
-└── Redis (Global clusters)
+```mermaid
+flowchart TD
+    subgraph "Scaling Evolution Timeline"
+        subgraph P1 ["Phase 1 - Single Node (Current)"]
+            P1M["MongoDB<br/>(Single instance)"]
+            P1P["Parquet<br/>(Local storage)"]
+            P1R["Redis<br/>(Single instance)"]
+        end
+        
+        subgraph P2 ["Phase 2 - Local Cluster (6-12 months)"]
+            P2M["MongoDB<br/>(3-node replica set)"]
+            P2P["Parquet<br/>(Distributed file system)"]
+            P2R["Redis<br/>(Cluster mode)"]
+        end
+        
+        subgraph P3 ["Phase 3 - Multi-Region (1-2 years)"]
+            P3M["MongoDB<br/>(Sharded cluster)"]
+            P3P["Parquet<br/>(Multi-region replication)"]
+            P3R["Redis<br/>(Global clusters)"]
+        end
+        
+        P1M --> P2M --> P3M
+        P1P --> P2P --> P3P
+        P1R --> P2R --> P3R
+    end
+    
+    classDef currentPhase fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
+    classDef nearTermPhase fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef longTermPhase fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    
+    class P1M,P1P,P1R currentPhase
+    class P2M,P2P,P2R nearTermPhase
+    class P3M,P3P,P3R longTermPhase
 ```
 
 #### **Data Partitioning Strategy**

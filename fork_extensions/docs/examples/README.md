@@ -94,28 +94,47 @@ graph LR
 
 ## Code Examples Organization
 
-```
-examples/
-├── getting-started/           # Beginner-friendly examples
-│   ├── hello-world/          # Complete minimal system
-│   ├── basic-backtesting/    # Simple backtesting example
-│   └── data-exploration/     # Data analysis examples
-├── strategies/               # Trading strategy implementations
-│   ├── momentum-strategy/    # Momentum-based system
-│   ├── mean-reversion/       # Mean reversion system
-│   └── multi-asset-portfolio/ # Portfolio construction
-├── data-management/          # Data handling examples
-│   ├── csv-data-setup/       # CSV data configuration
-│   ├── mongodb-integration/  # Database setup
-│   └── realtime-data/        # Live data feeds
-├── production/               # Production deployment examples
-│   ├── live-trading-setup/   # Complete production setup
-│   ├── risk-management/      # Risk control implementation
-│   └── monitoring-alerting/  # System monitoring
-└── advanced/                 # Expert-level examples
-    ├── custom-data-sources/  # External data integration
-    ├── execution-algorithms/ # Custom execution logic
-    └── ml-integration/       # Machine learning examples
+```mermaid
+graph TD
+    subgraph "examples/"
+        A[examples/] --> B[🌱 getting-started/<br/>Beginner-friendly examples]
+        A --> C[📈 strategies/<br/>Trading strategy implementations]
+        A --> D[📊 data-management/<br/>Data handling examples]
+        A --> E[🏭 production/<br/>Production deployment examples]
+        A --> F[🚀 advanced/<br/>Expert-level examples]
+        
+        B --> B1[👋 hello-world/<br/>Complete minimal system]
+        B --> B2[🧪 basic-backtesting/<br/>Simple backtesting example]
+        B --> B3[🔍 data-exploration/<br/>Data analysis examples]
+        
+        C --> C1[📊 momentum-strategy/<br/>Momentum-based system]
+        C --> C2[⚖️ mean-reversion/<br/>Mean reversion system]
+        C --> C3[📚 multi-asset-portfolio/<br/>Portfolio construction]
+        
+        D --> D1[📁 csv-data-setup/<br/>CSV data configuration]
+        D --> D2[🗃️ mongodb-integration/<br/>Database setup]
+        D --> D3[📡 realtime-data/<br/>Live data feeds]
+        
+        E --> E1[🔧 live-trading-setup/<br/>Complete production setup]
+        E --> E2[⚠️ risk-management/<br/>Risk control implementation]
+        E --> E3[📊 monitoring-alerting/<br/>System monitoring]
+        
+        F --> F1[🔌 custom-data-sources/<br/>External data integration]
+        F --> F2[⚡ execution-algorithms/<br/>Custom execution logic]
+        F --> F3[🤖 ml-integration/<br/>Machine learning examples]
+    end
+    
+    classDef beginnerDir fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef strategyDir fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef dataDir fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef productionDir fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef advancedDir fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    
+    class B,B1,B2,B3 beginnerDir
+    class C,C1,C2,C3 strategyDir
+    class D,D1,D2,D3 dataDir
+    class E,E1,E2,E3 productionDir
+    class F,F1,F2,F3 advancedDir
 ```
 
 ## Running Examples
@@ -137,16 +156,28 @@ python fork_extensions/examples/setup_example_data.py
 ```
 
 ### Example Structure
-```python
-# Every example follows this structure:
-examples/
-└── example-name/
-    ├── README.md           # Documentation and instructions
-    ├── config.yaml         # System configuration  
-    ├── main.py            # Main example script
-    ├── data/              # Example data files
-    ├── results/           # Output directory
-    └── tests/             # Example tests
+```mermaid
+graph TD
+    subgraph "Example Structure Template"
+        A[📁 example-name/] --> B[📄 README.md<br/>Documentation and instructions]
+        A --> C[⚙️ config.yaml<br/>System configuration]
+        A --> D[🐍 main.py<br/>Main example script]
+        A --> E[📊 data/<br/>Example data files]
+        A --> F[📈 results/<br/>Output directory]
+        A --> G[🧪 tests/<br/>Example tests]
+    end
+    
+    classDef docFile fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef configFile fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef codeFile fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef dataDir fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef outputDir fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    
+    class B docFile
+    class C configFile
+    class D,G codeFile
+    class E dataDir
+    class F outputDir
 ```
 
 ## Navigation

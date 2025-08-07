@@ -19,21 +19,59 @@ Comprehensive technical implementation guide covering detailed class designs, al
 
 ### **System Architecture Layers**
 
-```python
-# Layer 1: Business Logic (Top)
-├── systems/           # Backtesting & Strategy Framework
-├── sysproduction/     # Production Trading System
-├── sysexecution/      # Order Management & Execution
-
-# Layer 2: Domain Model (Middle) 
-├── sysobjects/        # Business Objects (Contracts, Instruments, Prices)
-├── sysquant/          # Quantitative Analytics & Optimization
-
-# Layer 3: Infrastructure (Bottom)
-├── sysdata/           # Data Abstraction & Persistence
-├── sysbrokers/        # External System Integration
-├── syscore/           # Core Utilities & Framework
-├── syslogging/        # Logging & Monitoring
+```mermaid
+graph TD
+    subgraph "Layer 1: Business Logic (Top)"
+        A[📊 systems/<br/>Backtesting & Strategy Framework]
+        B[🏭 sysproduction/<br/>Production Trading System]
+        C[⚡ sysexecution/<br/>Order Management & Execution]
+    end
+    
+    subgraph "Layer 2: Domain Model (Middle)"
+        D[🎯 sysobjects/<br/>Business Objects<br/>(Contracts, Instruments, Prices)]
+        E[📈 sysquant/<br/>Quantitative Analytics & Optimization]
+    end
+    
+    subgraph "Layer 3: Infrastructure (Bottom)"
+        F[🗄️ sysdata/<br/>Data Abstraction & Persistence]
+        G[🔗 sysbrokers/<br/>External System Integration]
+        H[🔧 syscore/<br/>Core Utilities & Framework]
+        I[📝 syslogging/<br/>Logging & Monitoring]
+    end
+    
+    %% Dependencies flow downward
+    A --> D
+    B --> D
+    C --> D
+    A --> E
+    B --> E
+    
+    D --> F
+    E --> F
+    D --> G
+    B --> G
+    C --> G
+    
+    A --> H
+    B --> H
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    
+    B --> I
+    C --> I
+    F --> I
+    G --> I
+    
+    classDef businessLogic fill:#e3f2fd,stroke:#0277bd,stroke-width:3px
+    classDef domainModel fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
+    classDef infrastructure fill:#fff3e0,stroke:#ef6c00,stroke-width:3px
+    
+    class A,B,C businessLogic
+    class D,E domainModel
+    class F,G,H,I infrastructure
 ```
 
 ### **Key Design Principles Applied**

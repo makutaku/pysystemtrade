@@ -58,20 +58,29 @@ graph LR
 ### **1. Fork Structure Awareness**
 This is a fork of the main pysystemtrade repository. All documentation contributions should be made to the `fork_extensions/docs/` directory to avoid conflicts during upstream merges.
 
-```
-fork_extensions/docs/
-├── README.md                    # Main documentation index
-├── project-overview.md          # Project introduction
-├── installation.md              # Installation instructions
-├── CHANGELOG.md                 # Documentation changes
-├── CONTRIBUTING.md              # This file
-├── architecture/                # Architecture documentation
-├── guides/                      # User guides  
-├── examples/                    # Examples and tutorials
-├── tutorials/                   # Step-by-step tutorials
-├── production/                  # Production documentation
-├── reference/                   # Reference materials
-└── lld/                        # Low-level design specs
+```mermaid
+graph TD
+    subgraph "fork_extensions/docs/"
+        A[📄 README.md<br/>Main documentation index]
+        B[📋 project-overview.md<br/>Project introduction]
+        C[⚙️ installation.md<br/>Installation instructions]
+        D[📝 CHANGELOG.md<br/>Documentation changes]
+        E[🤝 CONTRIBUTING.md<br/>This file]
+        
+        F[🏗️ architecture/<br/>Architecture documentation]
+        G[📖 guides/<br/>User guides]
+        H[💡 examples/<br/>Examples and tutorials]
+        I[🎓 tutorials/<br/>Step-by-step tutorials]
+        J[🏭 production/<br/>Production documentation]
+        K[📚 reference/<br/>Reference materials]
+        L[🔧 lld/<br/>Low-level design specs]
+    end
+    
+    classDef docFile fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef docDir fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    
+    class A,B,C,D,E docFile
+    class F,G,H,I,J,K,L docDir
 ```
 
 ### **2. Development Environment**

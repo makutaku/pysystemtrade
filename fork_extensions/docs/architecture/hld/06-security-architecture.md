@@ -13,33 +13,60 @@ The security architecture for pysystemtrade implements **defense-in-depth** prin
 
 ### **Security Domains**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Security Architecture                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Perimeter Security          Application Security               │
-│  ┌─────────────┐             ┌─────────────┐                    │
-│  │ Firewalls   │─────────────│ Authentication│                  │
-│  │ WAF         │             │ Authorization │                  │
-│  │ DDoS Prot   │             │ Input Valid   │                  │
-│  └─────────────┘             └─────────────┘                    │
-│                                      │                          │
-│  Data Security               Infrastructure Security            │
-│  ┌─────────────┐             ┌─────────────┐                    │
-│  │ Encryption  │─────────────│ OS Hardening│                    │
-│  │ Key Mgmt    │             │ Network Seg │                    │
-│  │ Data Class  │             │ Monitoring  │                    │
-│  └─────────────┘             └─────────────┘                    │
-│                                      │                          │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Compliance & Governance                    │    │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │    │
-│  │  │ Audit Trail │ │ Risk Mgmt   │ │ Regulatory  │       │    │
-│  │  │ & Logging   │ │ Framework   │ │ Reporting   │       │    │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘       │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph "Security Architecture"
+        subgraph "Perimeter Security"
+            Firewalls["Firewalls"]
+            WAF["WAF"]
+            DDoSProt["DDoS Protection"]
+        end
+        
+        subgraph "Application Security"
+            Authentication["Authentication"]
+            Authorization["Authorization"]
+            InputValid["Input Validation"]
+        end
+        
+        subgraph "Data Security"
+            Encryption["Encryption"]
+            KeyMgmt["Key Management"]
+            DataClass["Data Classification"]
+        end
+        
+        subgraph "Infrastructure Security"
+            OSHardening["OS Hardening"]
+            NetworkSeg["Network Segmentation"]
+            Monitoring["Monitoring"]
+        end
+        
+        subgraph "Compliance & Governance"
+            AuditTrail["Audit Trail<br/>& Logging"]
+            RiskMgmt["Risk Management<br/>Framework"]
+            RegReporting["Regulatory<br/>Reporting"]
+        end
+    end
+    
+    %% Cross-domain relationships
+    Firewalls -.-> Authentication
+    Authentication -.-> OSHardening
+    Encryption -.-> OSHardening
+    DataClass --> AuditTrail
+    Monitoring --> RiskMgmt
+    Authorization --> RegReporting
+    
+    %% Styling
+    classDef perimeterStyle fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef appStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef dataStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef infraStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef complianceStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    
+    class Firewalls,WAF,DDoSProt perimeterStyle
+    class Authentication,Authorization,InputValid appStyle
+    class Encryption,KeyMgmt,DataClass dataStyle
+    class OSHardening,NetworkSeg,Monitoring infraStyle
+    class AuditTrail,RiskMgmt,RegReporting complianceStyle
 ```
 
 ## Authentication & Authorization
@@ -364,39 +391,66 @@ class KeyManager:
 ### **Network Segmentation Strategy**
 
 #### **Multi-Tier Network Architecture**
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Network Security Zones                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  DMZ Zone (Public Access)                                      │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Load Balancer │ WAF │ API Gateway                       │    │
-│  │ Port: 443 (HTTPS only)                                 │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│                        ┌─────────────┐                          │
-│                        │   Firewall  │                          │
-│                        │   Rules     │                          │
-│                        └─────────────┘                          │
-│                              │                                  │
-│  Application Zone (Restricted Access)                          │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ Trading Engine │ Portfolio Manager │ Analytics Engine │    │
-│  │ Internal Communication: TLS 1.3                        │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│                        ┌─────────────┐                          │
-│                        │   Firewall  │                          │
-│                        │   Rules     │                          │
-│                        └─────────────┘                          │
-│                              │                                  │
-│  Data Zone (Highly Restricted)                                │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │ MongoDB │ Redis │ Backup Systems │ Logging              │    │
-│  │ No Direct External Access                               │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Network Security Zones"
+        subgraph "DMZ Zone (Public Access)"
+            LoadBalancer["Load Balancer"]
+            WAF2["WAF"]
+            APIGateway["API Gateway"]
+            HTTPSOnly["Port: 443 (HTTPS only)"]
+        end
+        
+        Firewall1["Firewall Rules"]
+        
+        subgraph "Application Zone (Restricted Access)"
+            TradingEngine["Trading Engine"]
+            PortfolioManager["Portfolio Manager"]
+            AnalyticsEngine["Analytics Engine"]
+            TLSComms["Internal Communication: TLS 1.3"]
+        end
+        
+        Firewall2["Firewall Rules"]
+        
+        subgraph "Data Zone (Highly Restricted)"
+            MongoDB2["MongoDB"]
+            Redis2["Redis"]
+            BackupSystems["Backup Systems"]
+            LoggingSys["Logging"]
+            NoExtAccess["No Direct External Access"]
+        end
+    end
+    
+    %% Zone flow
+    LoadBalancer --> Firewall1
+    WAF2 --> Firewall1
+    APIGateway --> Firewall1
+    
+    Firewall1 --> TradingEngine
+    Firewall1 --> PortfolioManager
+    Firewall1 --> AnalyticsEngine
+    
+    TradingEngine --> Firewall2
+    PortfolioManager --> Firewall2
+    AnalyticsEngine --> Firewall2
+    
+    Firewall2 --> MongoDB2
+    Firewall2 --> Redis2
+    Firewall2 --> BackupSystems
+    Firewall2 --> LoggingSys
+    
+    %% Styling
+    classDef dmzStyle fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef firewallStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef appStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef dataStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef infoStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px,color:#000,font-style:italic
+    
+    class LoadBalancer,WAF2,APIGateway dmzStyle
+    class Firewall1,Firewall2 firewallStyle
+    class TradingEngine,PortfolioManager,AnalyticsEngine appStyle
+    class MongoDB2,Redis2,BackupSystems,LoggingSys dataStyle
+    class HTTPSOnly,TLSComms,NoExtAccess infoStyle
 ```
 
 #### **Firewall Configuration**

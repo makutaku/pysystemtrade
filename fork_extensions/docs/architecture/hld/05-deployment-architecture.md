@@ -39,101 +39,117 @@ The deployment architecture for pysystemtrade implements a **robust, scalable, a
 
 ### **Deployment Environments**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Deployment Environment Pipeline              │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Development                    Staging                         │
-│  ┌─────────────────┐           ┌─────────────────┐              │
-│  │ • Local Dev     │──────────▶│ • Integration   │              │
-│  │ • Unit Testing  │           │ • E2E Testing   │              │
-│  │ • CSV Data      │           │ • Performance   │              │
-│  │ • Mock Services │           │ • Security Scan │              │
-│  └─────────────────┘           └─────────────────┘              │
-│           │                             │                       │
-│           ▼                             ▼                       │
-│  ┌─────────────────┐           ┌─────────────────┐              │
-│  │ Feature Branch  │           │ Staging Deploy  │              │
-│  │ • PR Validation │           │ • Full Stack    │              │
-│  │ • Code Review   │           │ • Load Testing  │              │
-│  │ • Automated     │           │ • UAT           │              │
-│  │   Testing       │           │ • Regression    │              │
-│  └─────────────────┘           └─────────────────┘              │
-│                                           │                     │
-│                    Production             ▼                     │
-│           ┌─────────────────────────────────────────┐            │
-│           │                                         │            │
-│           │  ┌─────────────┐    ┌─────────────┐     │            │
-│           │  │ Production  │    │ Disaster    │     │            │
-│           │  │ Primary     │◄──►│ Recovery    │     │            │
-│           │  │             │    │ Site        │     │            │
-│           │  └─────────────┘    └─────────────┘     │            │
-│           │                                         │            │
-│           └─────────────────────────────────────────┘            │
-│                              ▲                                  │
-│                              │                                  │
-│                    ┌─────────────────┐                          │
-│                    │ Release         │                          │
-│                    │ Management      │                          │
-│                    │ • Blue/Green    │                          │
-│                    │ • Canary        │                          │
-│                    │ • Rollback      │                          │
-│                    └─────────────────┘                          │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Deployment Environment Pipeline"
+        subgraph "Development"
+            LocalDev["• Local Dev<br/>• Unit Testing<br/>• CSV Data<br/>• Mock Services"]
+            FeatureBranch["• PR Validation<br/>• Code Review<br/>• Automated Testing"]
+        end
+        
+        subgraph "Staging"
+            Integration["• Integration<br/>• E2E Testing<br/>• Performance<br/>• Security Scan"]
+            StagingDeploy["• Full Stack<br/>• Load Testing<br/>• UAT<br/>• Regression"]
+        end
+        
+        subgraph "Production"
+            ProductionPrimary["Production Primary"]
+            DisasterRecovery["Disaster Recovery Site"]
+        end
+        
+        ReleaseManagement["• Blue/Green<br/>• Canary<br/>• Rollback"]
+    end
+    
+    %% Development flow
+    LocalDev --> FeatureBranch
+    LocalDev --> Integration
+    FeatureBranch --> StagingDeploy
+    Integration --> StagingDeploy
+    
+    %% Staging to Production
+    StagingDeploy --> ReleaseManagement
+    ReleaseManagement --> ProductionPrimary
+    
+    %% Production DR
+    ProductionPrimary <--> DisasterRecovery
+    
+    %% Styling
+    classDef devStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef stagingStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef prodStyle fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef releaseStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    
+    class LocalDev,FeatureBranch devStyle
+    class Integration,StagingDeploy stagingStyle
+    class ProductionPrimary,DisasterRecovery prodStyle
+    class ReleaseManagement releaseStyle
 ```
 
 ## Production Infrastructure Architecture
 
 ### **Multi-Tier Infrastructure Design**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                Production Infrastructure Topology                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Load Balancer Tier                                            │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  ┌─────────────┐              ┌─────────────┐           │    │
-│  │  │ Primary LB  │◄────────────►│ Secondary   │           │    │
-│  │  │ (Active)    │              │ LB (Standby)│           │    │
-│  │  └─────────────┘              └─────────────┘           │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│  Application Tier            ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │                                                         │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ App Server  │    │ App Server  │    │ App Server  │  │    │
-│  │  │ Node 1      │    │ Node 2      │    │ Node 3      │  │    │
-│  │  │ • Strategy  │    │ • Strategy  │    │ • Process   │  │    │
-│  │  │   Runner    │    │   Runner    │    │   Control   │  │    │
-│  │  │ • Order Mgmt│    │ • Risk Mgmt │    │ • Reporting │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  │         │                   │                   │       │    │
-│  └─────────│───────────────────│───────────────────│───────┘    │
-│            │                   │                   │            │
-│  Data Tier │                   │                   │            │
-│  ┌─────────│───────────────────│───────────────────│───────┐    │
-│  │         ▼                   ▼                   ▼       │    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ MongoDB     │    │ Redis       │    │ Parquet     │  │    │
-│  │  │ Cluster     │    │ Cluster     │    │ Storage     │  │    │
-│  │  │ • Orders    │    │ • Cache     │    │ • Time      │  │    │
-│  │  │ • Positions │    │ • Sessions  │    │   Series    │  │    │
-│  │  │ • Process   │    │ • Pub/Sub   │    │ • Analytics │  │    │
-│  │  │   State     │    │             │    │ • Backups   │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  Integration Tier                                              │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │    │
-│  │  │ IB Gateway  │    │ Market Data │    │ Risk/Comp   │  │    │
-│  │  │ Connections │    │ Feeds       │    │ Systems     │  │    │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘  │    │
-│  └─────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Production Infrastructure Topology"
+        subgraph "Load Balancer Tier"
+            PrimaryLB["Primary LB<br/>(Active)"]
+            SecondaryLB["Secondary LB<br/>(Standby)"]
+        end
+        
+        subgraph "Application Tier"
+            AppServer1["App Server Node 1<br/>• Strategy Runner<br/>• Order Management"]
+            AppServer2["App Server Node 2<br/>• Strategy Runner<br/>• Risk Management"]
+            AppServer3["App Server Node 3<br/>• Process Control<br/>• Reporting"]
+        end
+        
+        subgraph "Data Tier"
+            MongoDB["MongoDB Cluster<br/>• Orders<br/>• Positions<br/>• Process State"]
+            Redis["Redis Cluster<br/>• Cache<br/>• Sessions<br/>• Pub/Sub"]
+            Parquet["Parquet Storage<br/>• Time Series<br/>• Analytics<br/>• Backups"]
+        end
+        
+        subgraph "Integration Tier"
+            IBGateway["IB Gateway<br/>Connections"]
+            MarketDataFeeds["Market Data<br/>Feeds"]
+            RiskCompSystems["Risk/Compliance<br/>Systems"]
+        end
+    end
+    
+    %% Load balancer connections
+    PrimaryLB <--> SecondaryLB
+    PrimaryLB --> AppServer1
+    PrimaryLB --> AppServer2
+    PrimaryLB --> AppServer3
+    
+    %% Application to Data tier
+    AppServer1 --> MongoDB
+    AppServer2 --> Redis
+    AppServer3 --> Parquet
+    
+    %% Cross-connections for redundancy
+    AppServer1 -.-> Redis
+    AppServer1 -.-> Parquet
+    AppServer2 -.-> MongoDB
+    AppServer2 -.-> Parquet
+    AppServer3 -.-> MongoDB
+    AppServer3 -.-> Redis
+    
+    %% Integration layer connections
+    AppServer1 -.-> IBGateway
+    AppServer2 -.-> MarketDataFeeds
+    AppServer3 -.-> RiskCompSystems
+    
+    %% Styling
+    classDef lbStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef appStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef dataStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef integrationStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    
+    class PrimaryLB,SecondaryLB lbStyle
+    class AppServer1,AppServer2,AppServer3 appStyle
+    class MongoDB,Redis,Parquet dataStyle
+    class IBGateway,MarketDataFeeds,RiskCompSystems integrationStyle
 ```
 
 ### **Container Orchestration Strategy**

@@ -20,37 +20,67 @@ pysystemtrade represents a sophisticated enterprise-grade systematic futures tra
 
 ### **Business Context**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Business Environment                      │
-├─────────────────────────────────────────────────────────────────┤
-│  Regulatory Bodies              Market Participants              │
-│  ┌──────────────────┐         ┌──────────────────┐              │
-│  │ • CFTC           │         │ • Institutional   │              │
-│  │ • NFA            │◄────────┤   Investors       │              │
-│  │ • SEC            │         │ • Hedge Funds     │              │
-│  │ • Local Regulators│         │ • Trading Firms   │              │
-│  └──────────────────┘         └──────────────────┘              │
-│           ▲                             ▲                       │
-│           │                             │                       │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                 pysystemtrade Platform                      ││
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         ││
-│  │  │ Systematic  │  │ Risk        │  │ Compliance  │         ││
-│  │  │ Trading     │  │ Management  │  │ & Audit     │         ││
-│  │  │ Engine      │  │ System      │  │ Framework   │         ││
-│  │  └─────────────┘  └─────────────┘  └─────────────┘         ││
-│  └─────────────────────────────────────────────────────────────┘│
-│           │                             │                       │
-│           ▼                             ▼                       │
-│  ┌──────────────────┐         ┌──────────────────┐              │
-│  │ Market Data      │         │ Execution        │              │
-│  │ Providers        │         │ Venues           │              │
-│  │ • Bloomberg      │         │ • Interactive    │              │
-│  │ • Reuters        │         │   Brokers        │              │
-│  │ • Exchanges      │         │ • Prime Brokers  │              │
-│  └──────────────────┘         └──────────────────┘              │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Business Environment"
+        subgraph "Regulatory Bodies"
+            CFTC["• CFTC"]
+            NFA["• NFA"]
+            SEC["• SEC"]
+            LocalReg["• Local Regulators"]
+        end
+        
+        subgraph "Market Participants"
+            InstInv["• Institutional Investors"]
+            HedgeFunds["• Hedge Funds"]
+            TradingFirms["• Trading Firms"]
+        end
+        
+        subgraph "pysystemtrade Platform"
+            TradingEngine["Systematic Trading Engine"]
+            RiskMgmt["Risk Management System"]
+            Compliance["Compliance & Audit Framework"]
+        end
+        
+        subgraph "Market Data Providers"
+            Bloomberg["• Bloomberg"]
+            Reuters["• Reuters"]
+            Exchanges["• Exchanges"]
+        end
+        
+        subgraph "Execution Venues"
+            IB["• Interactive Brokers"]
+            PrimeBrokers["• Prime Brokers"]
+        end
+    end
+    
+    %% Relationships
+    CFTC -.-> TradingEngine
+    NFA -.-> TradingEngine
+    SEC -.-> TradingEngine
+    LocalReg -.-> TradingEngine
+    
+    InstInv -.-> TradingEngine
+    HedgeFunds -.-> TradingEngine
+    TradingFirms -.-> TradingEngine
+    
+    Bloomberg --> TradingEngine
+    Reuters --> TradingEngine
+    Exchanges --> TradingEngine
+    
+    TradingEngine --> IB
+    TradingEngine --> PrimeBrokers
+    
+    %% Styling
+    classDef platformStyle fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000
+    classDef regulatoryStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef marketStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef executionStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000
+    
+    class TradingEngine,RiskMgmt,Compliance platformStyle
+    class CFTC,NFA,SEC,LocalReg regulatoryStyle
+    class Bloomberg,Reuters,Exchanges,InstInv,HedgeFunds,TradingFirms marketStyle
+    class IB,PrimeBrokers executionStyle
 ```
 
 ### **System Boundaries**
@@ -125,25 +155,46 @@ pysystemtrade represents a sophisticated enterprise-grade systematic futures tra
 
 ### **Quality Attributes Prioritization**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Quality Attribute Priorities                 │
-├─────────────────────────────────────────────────────────────────┤
-│  Critical (Must Have)     │  Important (Should Have)             │
-│  ┌─────────────────────┐  │  ┌─────────────────────┐             │
-│  │ • Reliability       │  │  │ • Performance       │             │
-│  │ • Security          │  │  │ • Scalability       │             │
-│  │ • Correctness       │  │  │ • Maintainability   │             │
-│  │ • Compliance        │  │  │ • Usability         │             │
-│  └─────────────────────┘  │  └─────────────────────┘             │
-│                           │                                      │
-│  Nice to Have             │  Future Considerations               │
-│  ┌─────────────────────┐  │  ┌─────────────────────┐             │
-│  │ • Portability       │  │  │ • Cloud Native      │             │
-│  │ • Interoperability  │  │  │ • Multi-Region      │             │
-│  │ • Testability       │  │  │ • Real-time UI      │             │
-│  └─────────────────────┘  │  └─────────────────────┘             │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph "Quality Attribute Priorities"
+        subgraph "Critical (Must Have)"
+            Reliability["• Reliability"]
+            Security["• Security"]
+            Correctness["• Correctness"]
+            Compliance["• Compliance"]
+        end
+        
+        subgraph "Important (Should Have)"
+            Performance["• Performance"]
+            Scalability["• Scalability"]
+            Maintainability["• Maintainability"]
+            Usability["• Usability"]
+        end
+        
+        subgraph "Nice to Have"
+            Portability["• Portability"]
+            Interoperability["• Interoperability"]
+            Testability["• Testability"]
+        end
+        
+        subgraph "Future Considerations"
+            CloudNative["• Cloud Native"]
+            MultiRegion["• Multi-Region"]
+            RealTimeUI["• Real-time UI"]
+        end
+    end
+    
+    %% Styling
+    classDef criticalStyle fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#000,font-weight:bold
+    classDef importantStyle fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000
+    classDef niceToHaveStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef futureStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    
+    class Reliability,Security,Correctness,Compliance criticalStyle
+    class Performance,Scalability,Maintainability,Usability importantStyle
+    class Portability,Interoperability,Testability niceToHaveStyle
+    class CloudNative,MultiRegion,RealTimeUI futureStyle
 ```
 
 ## High-Level Architecture Vision
@@ -158,60 +209,109 @@ The system employs a **hybrid architectural pattern** combining:
 
 ### **System Architecture Layers**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Presentation Layer                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │ Web Dashboard   │  │ Interactive     │  │ Alert & Report  │  │
-│  │ (Read-Only)     │  │ Scripts         │  │ Generation      │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│                      Application Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │ Process         │  │ Strategy        │  │ Risk Management │  │
-│  │ Orchestration   │  │ Execution       │  │ & Monitoring    │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│                       Domain Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │ Trading         │  │ Order           │  │ Portfolio       │  │
-│  │ Strategies      │  │ Management      │  │ Analytics       │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-├─────────────────────────────────────────────────────────────────┤
-│                    Infrastructure Layer                         │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │ Data            │  │ Messaging       │  │ External        │  │
-│  │ Persistence     │  │ & Events        │  │ Integrations    │  │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "System Architecture Layers"
+        subgraph "Presentation Layer"
+            WebDash["Web Dashboard<br/>(Read-Only)"]
+            Scripts["Interactive<br/>Scripts"]
+            Reports["Alert & Report<br/>Generation"]
+        end
+        
+        subgraph "Application Layer"
+            ProcessOrch["Process<br/>Orchestration"]
+            StratExec["Strategy<br/>Execution"]
+            RiskMon["Risk Management<br/>& Monitoring"]
+        end
+        
+        subgraph "Domain Layer"
+            TradingStrat["Trading<br/>Strategies"]
+            OrderMgmt["Order<br/>Management"]
+            PortfolioAnal["Portfolio<br/>Analytics"]
+        end
+        
+        subgraph "Infrastructure Layer"
+            DataPersist["Data<br/>Persistence"]
+            Messaging["Messaging<br/>& Events"]
+            ExtInteg["External<br/>Integrations"]
+        end
+    end
+    
+    %% Layer interactions
+    WebDash -.-> ProcessOrch
+    Scripts -.-> ProcessOrch
+    Reports -.-> ProcessOrch
+    
+    ProcessOrch -.-> TradingStrat
+    StratExec -.-> OrderMgmt
+    RiskMon -.-> PortfolioAnal
+    
+    TradingStrat -.-> DataPersist
+    OrderMgmt -.-> Messaging
+    PortfolioAnal -.-> ExtInteg
+    
+    %% Styling
+    classDef presentationStyle fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px,color:#000
+    classDef applicationStyle fill:#e0f2f1,stroke:#00695c,stroke-width:2px,color:#000
+    classDef domainStyle fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000
+    classDef infraStyle fill:#fce4ec,stroke:#ad1457,stroke-width:2px,color:#000
+    
+    class WebDash,Scripts,Reports presentationStyle
+    class ProcessOrch,StratExec,RiskMon applicationStyle
+    class TradingStrat,OrderMgmt,PortfolioAnal domainStyle
+    class DataPersist,Messaging,ExtInteg infraStyle
 ```
 
 ### **Event-Driven Processing Model**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Event-Driven Data Flow                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Market Data Events                                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
-│  │ Price       │───▶│ Strategy    │───▶│ Order       │          │
-│  │ Updates     │    │ Signals     │    │ Generation  │          │
-│  └─────────────┘    └─────────────┘    └─────────────┘          │
-│                                                │                │
-│  Process Control Events                       ▼                │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
-│  │ Schedule    │───▶│ Process     │───▶│ Execution   │          │
-│  │ Triggers    │    │ Control     │    │ Engine      │          │
-│  └─────────────┘    └─────────────┘    └─────────────┘          │
-│                                                │                │
-│  Risk Control Events                          ▼                │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
-│  │ Position    │───▶│ Risk        │───▶│ Alert       │          │
-│  │ Changes     │    │ Monitoring  │    │ Generation  │          │
-│  └─────────────┘    └─────────────┘    └─────────────┘          │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph "Event-Driven Data Flow"
+        %% Market Data Events Flow
+        subgraph "Market Data Events"
+            PriceUpdates["Price Updates"]
+            StrategySignals["Strategy Signals"]
+            OrderGen["Order Generation"]
+        end
+        
+        %% Process Control Events Flow
+        subgraph "Process Control Events"
+            ScheduleTriggers["Schedule Triggers"]
+            ProcessControl["Process Control"]
+            ExecutionEngine["Execution Engine"]
+        end
+        
+        %% Risk Control Events Flow
+        subgraph "Risk Control Events"
+            PositionChanges["Position Changes"]
+            RiskMonitoring["Risk Monitoring"]
+            AlertGeneration["Alert Generation"]
+        end
+    end
+    
+    %% Event flow connections
+    PriceUpdates --> StrategySignals
+    StrategySignals --> OrderGen
+    OrderGen --> ExecutionEngine
+    
+    ScheduleTriggers --> ProcessControl
+    ProcessControl --> ExecutionEngine
+    
+    PositionChanges --> RiskMonitoring
+    RiskMonitoring --> AlertGeneration
+    
+    %% Cross-flow interactions
+    ExecutionEngine -.-> PositionChanges
+    RiskMonitoring -.-> ProcessControl
+    
+    %% Styling
+    classDef marketStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef processStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef riskStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    
+    class PriceUpdates,StrategySignals,OrderGen marketStyle
+    class ScheduleTriggers,ProcessControl,ExecutionEngine processStyle
+    class PositionChanges,RiskMonitoring,AlertGeneration riskStyle
 ```
 
 ## Component Architecture
@@ -275,32 +375,58 @@ The system employs a **hybrid architectural pattern** combining:
 
 ### **Component Interaction Model**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Component Interaction Flow                   │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
-│  │ Strategy    │────│ Production  │────│ Order       │          │
-│  │ Engine      │    │ Controller  │    │ Management  │          │
-│  │             │    │             │    │ System      │          │
-│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘          │
-│         │                  │                  │                │
-│         ▼                  ▼                  ▼                │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Data Management Layer                      │    │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │    │
-│  │  │ Historical  │  │ Real-time   │  │ Reference   │     │    │
-│  │  │ Data        │  │ Data        │  │ Data        │     │    │
-│  │  └─────────────┘  └─────────────┘  └─────────────┘     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              Risk Management Framework                  │    │
-│  │  (Cross-cutting concern integrated across all layers)   │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Component Interaction Flow"
+        %% Core Components
+        StrategyEngine["Strategy Engine"]
+        ProductionController["Production Controller"]
+        OrderMgmtSystem["Order Management System"]
+        
+        %% Data Management Layer
+        subgraph "Data Management Layer"
+            HistoricalData["Historical Data"]
+            RealTimeData["Real-time Data"]
+            ReferenceData["Reference Data"]
+        end
+        
+        %% Risk Management Framework
+        RiskFramework["Risk Management Framework<br/>(Cross-cutting concern integrated across all layers)"]
+    end
+    
+    %% Primary flow
+    StrategyEngine --> ProductionController
+    ProductionController --> OrderMgmtSystem
+    
+    %% Data layer connections
+    StrategyEngine --> HistoricalData
+    StrategyEngine --> RealTimeData
+    StrategyEngine --> ReferenceData
+    
+    ProductionController --> HistoricalData
+    ProductionController --> RealTimeData
+    ProductionController --> ReferenceData
+    
+    OrderMgmtSystem --> HistoricalData
+    OrderMgmtSystem --> RealTimeData
+    OrderMgmtSystem --> ReferenceData
+    
+    %% Risk framework cross-cutting concerns
+    RiskFramework -.-> StrategyEngine
+    RiskFramework -.-> ProductionController
+    RiskFramework -.-> OrderMgmtSystem
+    RiskFramework -.-> HistoricalData
+    RiskFramework -.-> RealTimeData
+    RiskFramework -.-> ReferenceData
+    
+    %% Styling
+    classDef coreStyle fill:#e1f5fe,stroke:#0277bd,stroke-width:2px,color:#000
+    classDef dataStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef riskStyle fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000,font-style:italic
+    
+    class StrategyEngine,ProductionController,OrderMgmtSystem coreStyle
+    class HistoricalData,RealTimeData,ReferenceData dataStyle
+    class RiskFramework riskStyle
 ```
 
 ## Technology Architecture Decisions
